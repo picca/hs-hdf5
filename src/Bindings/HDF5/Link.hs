@@ -1,4 +1,5 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
+{-# LANGUAGE CPP #-}
 {-
 
   h5l_get_info_by_idx           	[ FAIL ]
@@ -155,18 +156,20 @@ data LinkInfo = LinkInfo
     , linkCOrderValid :: Bool
     , linkCOrder      :: Int64
     , linkCSet        :: CSet
-    , linkAddress     :: HAddr
     , linkValSize     :: CSize
     } deriving (Eq, Ord, Read, Show)
 
+#if (H5Fget_info_vers == 1)
 readLinkInfo :: H5L_info_t -> LinkInfo
+#else
+readLinkInfo :: H5L_info2_t -> LinkInfo
+#endif
 readLinkInfo i  = LinkInfo
-    { linkType          = linkTypeFromCode (h5l_info_t'type i)
-    , linkCOrderValid   = hboolToBool (h5l_info_t'corder_valid i)
-    , linkCOrder        = h5l_info_t'corder i
-    , linkCSet          = cSetFromCode (h5l_info_t'cset i)
-    , linkAddress       = HAddr (h5l_info_t'u'address i)
-    , linkValSize       = h5l_info_t'u'val_size i
+    { linkType          = linkTypeFromCode (h5l_info2_t'type i)
+    , linkCOrderValid   = hboolToBool (h5l_info2_t'corder_valid i)
+    , linkCOrder        = h5l_info2_t'corder i
+    , linkCSet          = cSetFromCode (h5l_info2_t'cset i)
+    , linkValSize       = h5l_info2_t'u'val_size i
     }
 
 getLinkInfo :: Location loc => loc -> BS.ByteString -> Maybe LAPL -> IO LinkInfo
@@ -175,7 +178,11 @@ getLinkInfo loc name lapl =
         withOut_ $ \info ->
             withErrorCheck_ $
                 BS.useAsCString name $ \cname ->
+#if (H5Fget_info_vers == 1)
                     h5l_get_info (hid loc) cname info (maybe h5p_DEFAULT hid lapl)
+#else
+                    h5l_get_info2 (hid loc) cname info (maybe h5p_DEFAULT hid lapl)
+#endif
 
 getSymLinkVal :: Location loc => loc -> BS.ByteString -> Maybe LAPL -> IO BS.ByteString
 getSymLinkVal loc name mb_lapl =
@@ -183,9 +190,17 @@ getSymLinkVal loc name mb_lapl =
         let lapl = maybe h5p_DEFAULT hid mb_lapl
         info <- withOut_ $ \info ->
             withErrorCheck_ $
+#if (H5Fget_info_vers == 1)
                     h5l_get_info (hid loc) cname info lapl
+#else
+                    h5l_get_info2 (hid loc) cname info lapl
+#endif
 
+#if (H5Fget_info_vers == 1)
         let n = h5l_info_t'u'val_size info
+#else
+        let n = h5l_info2_t'u'val_size info
+#endif
 
         buf <- mallocBytes (fromIntegral n)
 
@@ -197,11 +212,20 @@ getSymLinkVal loc name mb_lapl =
 
 
 foreign import ccall "wrapper" wrap_H5L_iterate_t
+#if (H5Fget_info_vers == 1)
     :: (HId_t -> CString -> In H5L_info_t -> InOut a -> IO HErr_t)
     -> IO (FunPtr (HId_t -> CString -> In H5L_info_t -> InOut a -> IO HErr_t))
+#else
+    :: (HId_t -> CString -> In H5L_info2_t -> InOut a -> IO HErr_t)
+    -> IO (FunPtr (HId_t -> CString -> In H5L_info2_t -> InOut a -> IO HErr_t))
+#endif    
 
 with_iterate_t :: (Group -> BS.ByteString -> LinkInfo -> IO HErr_t)
+#if (H5Fget_info_vers == 1)
      -> (H5L_iterate_t () -> InOut () -> IO HErr_t)
+#else
+     -> (H5L_iterate2_t () -> InOut () -> IO HErr_t)
+#endif
      -> IO HErr_t
 with_iterate_t op f = do
     exception1 <- newIORef Nothing :: IO (IORef (Maybe SomeException))
@@ -233,7 +257,11 @@ iterateLinks loc indexType order startIndex op =
         withInOut_ (maybe 0 hSize startIndex) $ \ioStartIndex ->
             withErrorCheck_ $
                 with_iterate_t op $ \iop opData ->
+#if (H5Fget_info_vers == 1)
                     h5l_iterate (hid loc) (indexTypeCode indexType) (iterOrderCode order) ioStartIndex iop opData
+#else
+                    h5l_iterate2 (hid loc) (indexTypeCode indexType) (iterOrderCode order) ioStartIndex iop opData
+#endif
 
 iterateLinksByName :: Location t => t -> BS.ByteString -> IndexType -> IterOrder -> Maybe HSize -> Maybe LAPL -> (Group -> BS.ByteString -> LinkInfo -> IO HErr_t) -> IO HSize
 iterateLinksByName loc groupName indexType order startIndex lapl op =
@@ -242,17 +270,29 @@ iterateLinksByName loc groupName indexType order startIndex lapl op =
             withErrorCheck_ $
                 with_iterate_t op $ \iop opData ->
                     BS.useAsCString groupName $ \cgroupName ->
+#if (H5Fget_info_vers == 1)
                         h5l_iterate_by_name (hid loc) cgroupName (indexTypeCode indexType) (iterOrderCode order) ioStartIndex iop opData (maybe h5p_DEFAULT hid lapl)
+#else
+                        h5l_iterate_by_name2 (hid loc) cgroupName (indexTypeCode indexType) (iterOrderCode order) ioStartIndex iop opData (maybe h5p_DEFAULT hid lapl)
+#endif
 
 visitLinks :: Location t => t -> IndexType -> IterOrder -> (Group -> BS.ByteString -> LinkInfo -> IO HErr_t) -> IO ()
 visitLinks loc indexType order op =
     withErrorCheck_ $
         with_iterate_t op $ \iop opData ->
+#if (H5Fget_info_vers == 1)
             h5l_visit (hid loc) (indexTypeCode indexType) (iterOrderCode order) iop opData
+#else
+            h5l_visit2 (hid loc) (indexTypeCode indexType) (iterOrderCode order) iop opData
+#endif
 
 visitLinksByName :: Location t => t -> BS.ByteString -> IndexType -> IterOrder -> Maybe LAPL -> (Group -> BS.ByteString -> LinkInfo -> IO HErr_t) -> IO ()
 visitLinksByName loc groupName indexType order lapl op =
     withErrorCheck_ $
         with_iterate_t op $ \iop opData ->
             BS.useAsCString groupName $ \cgroupName ->
+#if (H5Fget_info_vers == 1)
                 h5l_visit_by_name (hid loc) cgroupName (indexTypeCode indexType) (iterOrderCode order) iop opData (maybe h5p_DEFAULT hid lapl)
+#else
+                h5l_visit_by_name2 (hid loc) cgroupName (indexTypeCode indexType) (iterOrderCode order) iop opData (maybe h5p_DEFAULT hid lapl)
+#endif

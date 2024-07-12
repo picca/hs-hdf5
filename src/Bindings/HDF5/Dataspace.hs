@@ -1,4 +1,5 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE CPP #-}
 module Bindings.HDF5.Dataspace
     ( Dataspace
     , DataspaceClass(..)
@@ -136,7 +137,11 @@ encodeDataspace (Dataspace space_id) =
     withOutByteString $ \buf bufSz ->
         withInOut_ bufSz $ \ioBufSz ->
             withErrorCheck_ $
+#if (H5Fget_info_vers == 1)
                 h5s_encode space_id buf ioBufSz
+#else
+                h5s_encode2 space_id buf ioBufSz
+#endif
 
 decodeDataspace :: BS.ByteString -> IO Dataspace
 decodeDataspace bs = BS.unsafeUseAsCString bs $ \buf ->

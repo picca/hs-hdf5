@@ -1,6 +1,9 @@
 #include <bindings.h>
 
 #include <H5Tpublic.h>
+#if H5_VERSION_GE(1,14,0)
+#include <H5Tdevelop.h>
+#endif
 
 module Bindings.HDF5.Raw.H5T where
 

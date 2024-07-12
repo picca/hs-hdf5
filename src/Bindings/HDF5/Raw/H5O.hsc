@@ -155,15 +155,30 @@ import Foreign.Ptr.Conventions
 
 #endif
 
+#starttype H5O_token_t
+
+#field __data,          CUChar
+
+#stoptype
+
 -- |Information struct for object
 -- (for 'h5o_get_info'/ 'h5o_get_info_by_name' / 'h5o_get_info_by_idx')
+#if (H5Fget_info_vers == 1)
 #starttype H5O_info_t
+#else
+#starttype H5O_info2_t
+#endif
 
 -- |File number that object is located in
 #field fileno,          CULong
 
+#if (H5Fget_info_vers == 1)
 -- |Object address in file
 #field addr,            <haddr_t>
+#endif
+
+-- |Token representing the object
+#field token,            <H5O_token_t>
 
 -- |Basic object type (group, dataset, etc.)
 #field type,            <H5O_type_t>
@@ -188,11 +203,14 @@ import Foreign.Ptr.Conventions
 
 #if H5_VERSION_GE(1,8,4)
 
+#if (H5Fget_info_vers == 1)
 -- |Object header information
 #field hdr,             <H5O_hdr_info_t>
+#endif
 
 #else
 
+#if (H5Fget_info_vers == 1)
 -- |Version number of header format in file
 #field hdr.version,      CUInt
 
@@ -225,11 +243,16 @@ import Foreign.Ptr.Conventions
 
 #endif
 
+#endif
+
+#if (H5Fget_info_vers == 1)
 -- |v1/v2 B-tree & local/fractal heap for groups, B-tree for chunked datasets
 #field meta_size.obj,   <H5_ih_info_t>
 
 -- |v2 B-tree & heap for attributes
 #field meta_size.attr,  <H5_ih_info_t>
+
+#endif
 
 #stoptype
 
@@ -237,8 +260,13 @@ import Foreign.Ptr.Conventions
 -- |Typedef for message creation indexes
 #newtype H5O_msg_crt_idx_t, Eq, Ord, Read
 
+#if (H5Fget_info_vers == 1)
 -- |Prototype for 'h5o_visit' / 'h5o_visit_by_name' operator
 type H5O_iterate_t a = FunPtr (HId_t -> CString -> In H5O_info_t -> InOut a -> IO HErr_t)
+#else
+-- |Prototype for 'h5o_visit' / 'h5o_visit_by_name' operator
+type H5O_iterate2_t a = FunPtr (HId_t -> CString -> In H5O_info2_t -> InOut a -> IO HErr_t)
+#endif
 
 #newtype H5O_mcdt_search_ret_t
 
@@ -339,7 +367,11 @@ type H5O_mcdt_search_cb_t a = FunPtr (InOut a -> IO H5O_mcdt_search_ret_t)
 -- Returns non-negative on success, negative on failure.
 --
 -- > herr_t H5Oget_info(hid_t loc_id, H5O_info_t *oinfo);
+#if (H5Fget_info_vers == 1)
 #ccall H5Oget_info, <hid_t> -> Out <H5O_info_t> -> IO <herr_t>
+#else
+#ccall H5Oget_info, <hid_t> -> Out <H5O_info2_t> -> IO <herr_t>
+#endif
 
 -- |Retrieve information about an object.
 --
@@ -556,7 +588,11 @@ type H5O_mcdt_search_cb_t a = FunPtr (InOut a -> IO H5O_mcdt_search_ret_t)
 --
 -- > herr_t H5Ovisit(hid_t obj_id, H5_index_t idx_type, H5_iter_order_t order,
 -- >     H5O_iterate_t op, void *op_data);
+#if (H5Fget_info_vers == 1)
 #ccall H5Ovisit, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5O_iterate_t a -> InOut a -> IO <herr_t>
+#else
+#ccall H5Ovisit, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5O_iterate2_t a -> InOut a -> IO <herr_t>
+#endif
 
 -- |Recursively visit an object and all the objects reachable
 -- from it.  If the starting object is a group, all the objects

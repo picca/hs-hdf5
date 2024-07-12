@@ -241,7 +241,7 @@ data FileInfo = FileInfo
     } deriving (Eq, Ord, Read, Show)
 
 readFileInfo :: H5F_info_t -> FileInfo
-readFileInfo (H5F_info_t a b (H5_ih_info_t c d)) = FileInfo (HSize a) (HSize b) (IH_Info (HSize c) (HSize d))
+readFileInfo (H5F_info_t _superVersion _superSize superExtSize' _freeVersion _metaSize _totSpace _sohmVersion sohmHdrSize' (H5_ih_info_t c d)) = FileInfo (HSize superExtSize') (HSize sohmHdrSize') (IH_Info (HSize c) (HSize d))
 
 getFileInfo :: Object obj => obj -> IO FileInfo
 getFileInfo obj =

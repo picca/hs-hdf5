@@ -1,4 +1,7 @@
 #include <H5FDpublic.h>
+#if H5_VERSION_GE(1,14,0)
+#include <H5FDdevelop.h>
+#endif
 
 #include <string.h>
 

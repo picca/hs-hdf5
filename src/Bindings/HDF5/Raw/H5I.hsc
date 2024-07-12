@@ -40,9 +40,6 @@ import Foreign.Ptr.Conventions
 -- |type ID for Attribute objects
 #newtype_const H5I_type_t, H5I_ATTR
 
--- |type ID for Reference objects
-#newtype_const H5I_type_t, H5I_REFERENCE
-
 -- |type ID for virtual file layer
 #newtype_const H5I_type_t, H5I_VFL
 

@@ -1,6 +1,7 @@
 #include <bindings.h>
 #include <H5Ipublic.h>
 #include <H5Zpublic.h>
+#include <H5Zdevelop.h>
 
 module Bindings.HDF5.Raw.H5Z where
 

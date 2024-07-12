@@ -23,6 +23,10 @@ source-repository head
   type: git
   location: git://github.com/picca/hs-hdf5.git
 
+flag use-hdf5-serial
+  default: False
+  manual: True
+
 Library
   hs-source-dirs:       src
   default-language:     Haskell2010
@@ -30,7 +34,6 @@ Library
   default-extensions:   ForeignFunctionInterface
 
   ghc-options:          -Wall
-  cc-options:           -Wno-format
   exposed-modules:      Bindings.HDF5
                       , Bindings.HDF5.Attribute
                       , Bindings.HDF5.Raw
@@ -115,7 +118,11 @@ Library
                       , vector
                       , transformers
 
-  pkgconfig-depends:    hdf5-serial, libffi
+  pkgconfig-depends: libffi
+  if flag(use-hdf5-serial)
+    pkgconfig-depends: hdf5-serial
+  else
+    pkgconfig-depends: hdf5
 
 
 test-suite hdf5-test

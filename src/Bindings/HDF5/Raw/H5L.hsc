@@ -1,6 +1,8 @@
 #include <bindings.h>
 #include <H5Lpublic.h>
-
+#if H5_VERSION_GE(1,14,0)
+#include <H5Ldevelop.h>
+#endif
 module Bindings.HDF5.Raw.H5L where
 
 import Data.Int
@@ -14,6 +16,7 @@ import Foreign.Storable
 import Bindings.HDF5.Raw.H5
 import Bindings.HDF5.Raw.H5I
 import Bindings.HDF5.Raw.H5T
+import Bindings.HDF5.Raw.H5O
 import Foreign.Ptr.Conventions
 
 -- |Maximum length of a link's name
@@ -60,7 +63,11 @@ h5l_MAX_LINK_NAME_LEN = #const H5L_MAX_LINK_NAME_LEN
 #newtype_const H5L_type_t, H5L_TYPE_UD_MIN
 
 -- |Information struct for link (for 'h5l_get_info' / 'h5l_get_info_by_idx')
+#if (H5Fget_info_vers == 1)
 #starttype H5L_info_t
+#else
+#starttype H5L_info2_t
+#endif
 
 -- |Type of link
 #field type,                <H5L_type_t>
@@ -74,8 +81,14 @@ h5l_MAX_LINK_NAME_LEN = #const H5L_MAX_LINK_NAME_LEN
 -- |Character set of link name
 #field cset,                <H5T_cset_t>
 
+#if (H5Fget_info_vers == 1)
 -- |Address hard link points to
 #union_field u.address,     <haddr_t>
+#else
+#union_field u.token,       <H5O_token_t>
+#endif
+
+
 
 -- |Size of a soft link or UD link value
 #union_field u.val_size,    <size_t>
@@ -163,7 +176,11 @@ type H5L_query_func_t a b = FunPtr (CString -> Ptr a -> CSize -> Out b -> CSize 
 --
 -- > typedef herr_t (*H5L_iterate_t)(hid_t group, const char *name, const H5L_info_t *info,
 -- >     void *op_data);
+#if (H5Fget_info_vers == 1)
 type H5L_iterate_t a = FunPtr (HId_t -> CString -> In H5L_info_t -> InOut a -> IO HErr_t)
+#else
+type H5L_iterate2_t a = FunPtr (HId_t -> CString -> In H5L_info2_t -> InOut a -> IO HErr_t)
+#endif
 
 -- |Callback for external link traversal
 --
@@ -290,7 +307,11 @@ type H5L_elink_traverse_t a = FunPtr (CString
 --
 -- > herr_t H5Lget_info(hid_t loc_id, const char *name,
 -- >     H5L_info_t *linfo /*out*/, hid_t lapl_id);
+#if (H5Fget_info_vers == 1)
 #ccall H5Lget_info, <hid_t> -> CString -> Out <H5L_info_t> -> <hid_t> -> IO <herr_t>
+#else
+#ccall H5Lget_info, <hid_t> -> CString -> Out <H5L_info2_t> -> <hid_t> -> IO <herr_t>
+#endif
 
 -- |Gets metadata for a link, according to the order within an index.
 --
@@ -327,7 +348,7 @@ type H5L_elink_traverse_t a = FunPtr (CString
 --
 -- > herr_t H5Literate(hid_t grp_id, H5_index_t idx_type,
 -- >     H5_iter_order_t order, hsize_t *idx, H5L_iterate_t op, void *op_data);
-#ccall H5Literate, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate_t a -> InOut a -> IO <herr_t>
+#ccall H5Literate, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate2_t a -> InOut a -> IO <herr_t>
 
 -- |Iterates over links in a group, with user callback routine,
 -- according to the order within an index.

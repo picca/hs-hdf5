@@ -26,7 +26,9 @@ BC_INLINE_(H5E_DATATYPE,            hid_t)
 BC_INLINE_(H5E_RS,                  hid_t)
 BC_INLINE_(H5E_HEAP,                hid_t)
 BC_INLINE_(H5E_OHDR,                hid_t)
+#if !H5_VERSION_GE(1,8,11)
 BC_INLINE_(H5E_ATOM,                hid_t)
+#endif
 BC_INLINE_(H5E_ATTR,                hid_t)
 BC_INLINE_(H5E_NONE_MAJOR,          hid_t)
 BC_INLINE_(H5E_IO,                  hid_t)
@@ -120,7 +122,10 @@ BC_INLINE_(H5E_BADFILE,             hid_t)
 BC_INLINE_(H5E_TRUNCATED,           hid_t)
 BC_INLINE_(H5E_MOUNT,               hid_t)
 
+// This disappeared?
+#if !H5_VERSION_GE(1,8,11)
 BC_INLINE_(H5E_BADATOM,             hid_t)
+#endif
 BC_INLINE_(H5E_BADGROUP,            hid_t)
 BC_INLINE_(H5E_CANTREGISTER,        hid_t)
 BC_INLINE_(H5E_CANTINC,             hid_t)
