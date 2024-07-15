@@ -155,11 +155,15 @@ import Foreign.Ptr.Conventions
 
 #endif
 
+#if H5_VERSION_GE(1,11,0)
+
 #starttype H5O_token_t
 
 #field __data,          CUChar
 
 #stoptype
+
+#endif
 
 -- |Information struct for object
 -- (for 'h5o_get_info'/ 'h5o_get_info_by_name' / 'h5o_get_info_by_idx')
@@ -178,7 +182,9 @@ import Foreign.Ptr.Conventions
 #endif
 
 -- |Token representing the object
+#if H5_VERSION_GE(1,11,0)
 #field token,            <H5O_token_t>
+#endif
 
 -- |Basic object type (group, dataset, etc.)
 #field type,            <H5O_type_t>

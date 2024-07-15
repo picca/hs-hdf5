@@ -1,3 +1,4 @@
+#include <H5version.h>
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE CPP #-}
 module Bindings.HDF5.Dataspace

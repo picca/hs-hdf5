@@ -1,5 +1,6 @@
 #include <bindings.h>
 #include <H5Lpublic.h>
+#include <H5version.h>
 #if H5_VERSION_GE(1,14,0)
 #include <H5Ldevelop.h>
 #endif
@@ -348,7 +349,11 @@ type H5L_elink_traverse_t a = FunPtr (CString
 --
 -- > herr_t H5Literate(hid_t grp_id, H5_index_t idx_type,
 -- >     H5_iter_order_t order, hsize_t *idx, H5L_iterate_t op, void *op_data);
+#if (H5Fget_info_vers == 1)
+#ccall H5Literate, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate_t a -> InOut a -> IO <herr_t>
+#else
 #ccall H5Literate, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate2_t a -> InOut a -> IO <herr_t>
+#endif
 
 -- |Iterates over links in a group, with user callback routine,
 -- according to the order within an index.

@@ -1,3 +1,4 @@
+#include <H5version.h>
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE FlexibleInstances #-}
 module Bindings.HDF5.File
@@ -241,7 +242,11 @@ data FileInfo = FileInfo
     } deriving (Eq, Ord, Read, Show)
 
 readFileInfo :: H5F_info_t -> FileInfo
+#if H5Fget_info_vers == 1
+readFileInfo (H5F_info_t a b (H5_ih_info_t c d)) = FileInfo (HSize a) (HSize b) (IH_Info (HSize c) (HSize d))
+#else
 readFileInfo (H5F_info_t _superVersion _superSize superExtSize' _freeVersion _metaSize _totSpace _sohmVersion sohmHdrSize' (H5_ih_info_t c d)) = FileInfo (HSize superExtSize') (HSize sohmHdrSize') (IH_Info (HSize c) (HSize d))
+#endif
 
 getFileInfo :: Object obj => obj -> IO FileInfo
 getFileInfo obj =

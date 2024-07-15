@@ -1,3 +1,4 @@
+#include <H5version.h>
 {-# LANGUAGE ForeignFunctionInterface #-}
 {-# LANGUAGE CPP #-}
 {-
@@ -159,11 +160,17 @@ data LinkInfo = LinkInfo
     , linkValSize     :: CSize
     } deriving (Eq, Ord, Read, Show)
 
-#if (H5Fget_info_vers == 1)
+#if H5Fget_info_vers == 1
 readLinkInfo :: H5L_info_t -> LinkInfo
+readLinkInfo i  = LinkInfo
+    { linkType          = linkTypeFromCode (h5l_info_t'type i)
+    , linkCOrderValid   = hboolToBool (h5l_info_t'corder_valid i)
+    , linkCOrder        = h5l_info_t'corder i
+    , linkCSet          = cSetFromCode (h5l_info_t'cset i)
+    , linkValSize       = h5l_info_t'u'val_size i
+    }
 #else
 readLinkInfo :: H5L_info2_t -> LinkInfo
-#endif
 readLinkInfo i  = LinkInfo
     { linkType          = linkTypeFromCode (h5l_info2_t'type i)
     , linkCOrderValid   = hboolToBool (h5l_info2_t'corder_valid i)
@@ -171,6 +178,7 @@ readLinkInfo i  = LinkInfo
     , linkCSet          = cSetFromCode (h5l_info2_t'cset i)
     , linkValSize       = h5l_info2_t'u'val_size i
     }
+#endif
 
 getLinkInfo :: Location loc => loc -> BS.ByteString -> Maybe LAPL -> IO LinkInfo
 getLinkInfo loc name lapl =

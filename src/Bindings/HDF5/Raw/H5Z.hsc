@@ -1,7 +1,9 @@
 #include <bindings.h>
 #include <H5Ipublic.h>
 #include <H5Zpublic.h>
+#if H5_VERSION_GE(1,11,0)
 #include <H5Zdevelop.h>
+#endif
 
 module Bindings.HDF5.Raw.H5Z where
 

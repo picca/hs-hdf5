@@ -353,7 +353,7 @@ type H5FD_mem_t = H5F_mem_t
 #if H5_VERSION_GE(1,10,0) && H5_VERSION_LE(1,10,1)
 -- |Whether the file is open for SWMR read access
 -- Information from file open flags, for SWMR access
-#field swmr_read, <hbool_t>
+-- #field swmr_read, <hbool_t>
 #endif
 
 -- Space allocation management fields
