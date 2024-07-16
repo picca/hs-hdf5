@@ -118,9 +118,11 @@ Library
                       , vector
                       , transformers
 
-  pkgconfig-depends: hdf5
---  cpp-options:
---    - -DH5Fget_info_vers=1
+  pkgconfig-depends: libffi
+  if flag(use-hdf5-serial)
+    pkgconfig-depends: hdf5-serial
+  else
+    pkgconfig-depends: hdf5
 
 
 test-suite hdf5-test
