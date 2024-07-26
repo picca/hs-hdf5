@@ -64,10 +64,12 @@ h5l_MAX_LINK_NAME_LEN = #const H5L_MAX_LINK_NAME_LEN
 #newtype_const H5L_type_t, H5L_TYPE_UD_MIN
 
 -- |Information struct for link (for 'h5l_get_info' / 'h5l_get_info_by_idx')
-#if (H5Fget_info_vers == 1)
+#if H5Fget_info_vers == 1
 #starttype H5L_info_t
-#else
+#elif H5Fget_info_vers == 2
 #starttype H5L_info2_t
+#else
+#error "unknown info vers"
 #endif
 
 -- |Type of link
@@ -95,6 +97,9 @@ h5l_MAX_LINK_NAME_LEN = #const H5L_MAX_LINK_NAME_LEN
 #union_field u.val_size,    <size_t>
 #stoptype
 
+#if H5Fget_info_vers == 2
+type H5L_info_t = H5L_info2_t
+#endif
 
 -- /* The H5L_class_t struct can be used to override the behavior of a
 --  * "user-defined" link class. Users should populate the struct with callback
@@ -177,10 +182,10 @@ type H5L_query_func_t a b = FunPtr (CString -> Ptr a -> CSize -> Out b -> CSize 
 --
 -- > typedef herr_t (*H5L_iterate_t)(hid_t group, const char *name, const H5L_info_t *info,
 -- >     void *op_data);
-#if (H5Fget_info_vers == 1)
+-- #if (H5Fget_info_vers == 1)
 type H5L_iterate_t a = FunPtr (HId_t -> CString -> In H5L_info_t -> InOut a -> IO HErr_t)
-#else
-type H5L_iterate2_t a = FunPtr (HId_t -> CString -> In H5L_info2_t -> InOut a -> IO HErr_t)
+#if (H5Fget_info_vers != 1)
+type H5L_iterate2_t a = H5L_iterate_t a
 #endif
 
 -- |Callback for external link traversal
@@ -308,11 +313,7 @@ type H5L_elink_traverse_t a = FunPtr (CString
 --
 -- > herr_t H5Lget_info(hid_t loc_id, const char *name,
 -- >     H5L_info_t *linfo /*out*/, hid_t lapl_id);
-#if (H5Fget_info_vers == 1)
 #ccall H5Lget_info, <hid_t> -> CString -> Out <H5L_info_t> -> <hid_t> -> IO <herr_t>
-#else
-#ccall H5Lget_info, <hid_t> -> CString -> Out <H5L_info2_t> -> <hid_t> -> IO <herr_t>
-#endif
 
 -- |Gets metadata for a link, according to the order within an index.
 --
@@ -349,11 +350,7 @@ type H5L_elink_traverse_t a = FunPtr (CString
 --
 -- > herr_t H5Literate(hid_t grp_id, H5_index_t idx_type,
 -- >     H5_iter_order_t order, hsize_t *idx, H5L_iterate_t op, void *op_data);
-#if (H5Fget_info_vers == 1)
 #ccall H5Literate, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate_t a -> InOut a -> IO <herr_t>
-#else
-#ccall H5Literate, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate2_t a -> InOut a -> IO <herr_t>
-#endif
 
 -- |Iterates over links in a group, with user callback routine,
 -- according to the order within an index.

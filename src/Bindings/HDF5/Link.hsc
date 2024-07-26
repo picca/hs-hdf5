@@ -1,4 +1,9 @@
+#include <bindings.h>
+#include <H5Lpublic.h>
 #include <H5version.h>
+#if H5_VERSION_GE(1,14,0)
+#include <H5Ldevelop.h>
+#endif
 {-# LANGUAGE ForeignFunctionInterface #-}
 {-# LANGUAGE CPP #-}
 {-
@@ -169,8 +174,8 @@ readLinkInfo i  = LinkInfo
     , linkCSet          = cSetFromCode (h5l_info_t'cset i)
     , linkValSize       = h5l_info_t'u'val_size i
     }
-#else
-readLinkInfo :: H5L_info2_t -> LinkInfo
+#elif H5Fget_info_vers == 2
+readLinkInfo :: H5L_info_t -> LinkInfo
 readLinkInfo i  = LinkInfo
     { linkType          = linkTypeFromCode (h5l_info2_t'type i)
     , linkCOrderValid   = hboolToBool (h5l_info2_t'corder_valid i)
@@ -178,6 +183,8 @@ readLinkInfo i  = LinkInfo
     , linkCSet          = cSetFromCode (h5l_info2_t'cset i)
     , linkValSize       = h5l_info2_t'u'val_size i
     }
+#else
+#error "unknown info vers"
 #endif
 
 getLinkInfo :: Location loc => loc -> BS.ByteString -> Maybe LAPL -> IO LinkInfo
@@ -220,20 +227,11 @@ getSymLinkVal loc name mb_lapl =
 
 
 foreign import ccall "wrapper" wrap_H5L_iterate_t
-#if (H5Fget_info_vers == 1)
     :: (HId_t -> CString -> In H5L_info_t -> InOut a -> IO HErr_t)
     -> IO (FunPtr (HId_t -> CString -> In H5L_info_t -> InOut a -> IO HErr_t))
-#else
-    :: (HId_t -> CString -> In H5L_info2_t -> InOut a -> IO HErr_t)
-    -> IO (FunPtr (HId_t -> CString -> In H5L_info2_t -> InOut a -> IO HErr_t))
-#endif    
 
 with_iterate_t :: (Group -> BS.ByteString -> LinkInfo -> IO HErr_t)
-#if (H5Fget_info_vers == 1)
      -> (H5L_iterate_t () -> InOut () -> IO HErr_t)
-#else
-     -> (H5L_iterate2_t () -> InOut () -> IO HErr_t)
-#endif
      -> IO HErr_t
 with_iterate_t op f = do
     exception1 <- newIORef Nothing :: IO (IORef (Maybe SomeException))

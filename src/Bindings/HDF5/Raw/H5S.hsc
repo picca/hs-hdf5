@@ -1,5 +1,6 @@
 #include <bindings.h>
 #include <H5Spublic.h>
+#include <H5version.h>
 
 module Bindings.HDF5.Raw.H5S where
 
@@ -171,7 +172,14 @@ import Foreign.Ptr.Conventions
 -- Returns non-negative on success, negative on failure.
 --
 -- > herr_t H5Sencode(hid_t obj_id, void *buf, size_t *nalloc);
+#if HDF5get_info_vers == 1
 #ccall H5Sencode, <hid_t> -> OutArray CChar -> InOut <size_t> -> IO <herr_t>
+#else
+#ccall H5Sencode2, <hid_t> -> OutArray CChar -> InOut <size_t> -> IO <herr_t>
+
+h5s_encode :: HId_t -> OutArray CChar -> InOut CSize -> IO HErr_t
+h5s_encode = h5s_encode2
+#endif
 
 -- |Decode a binary object description of dataspace and
 -- return a new object handle.

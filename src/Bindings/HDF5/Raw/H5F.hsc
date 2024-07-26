@@ -131,44 +131,6 @@ import Foreign.Ptr.Conventions
 #newtype_const H5F_close_degree_t, H5F_CLOSE_STRONG
 
 
-#if H5_VERSION_GE(1,10,0)
-
--- |Current "global" information about file
--- (just size info currently)
-#starttype H5F_info2_t
-
--- |Superblock version
-#field super.version,  CUInt
-
--- |Superblock size
-#field super.super_size, <hsize_t>
-
-
--- |Superblock extension size
-#field super.super_ext_size, <hsize_t>
-
--- |Version # of file free space management
-#field free.version, CUInt
-
--- |Free space manager metadata size
-#field free.meta_size, <hsize_t>
-
--- |Amount of free space in the file
-#field free.tot_space, <hsize_t>
-
--- |Version # of shared object header info
-#field sohm.version, CUInt
-
--- |Shared object header message header size
-#field sohm.hdr_size, <hsize_t>
-
--- |Shared object header message index & heap size
-#field sohm.msgs_info, <H5_ih_info_t>
-
-#stoptype
-
-#endif
- 
 #if H5_VERSION_GE(1,8,4)
 
 -- |Types of allocation requests. The values larger than 'h5fd_MEM_DEFAULT'
@@ -573,8 +535,10 @@ type H5F_flush_cb_t a = FunPtr (HId_t -> InOut a -> IO HErr_t)
 --
 #if H5_VERSION_GE(1,10,0)
 
+#if H5Fget_info_vers == 2
 -- > herr_t H5Fget_info2(hid_t obj_id, H5F_info2_t *bh_info);
-#ccall H5Fget_info2, <hid_t> -> Out H5F_info2_t -> IO <herr_t>
+#ccall H5Fget_info2, <hid_t> -> Out H5F_info_t -> IO <herr_t>
+#endif
 
 -- > herr_t H5Fget_metadata_read_retry_info(hid_t file_id, H5F_retry_info_t *info);
 #ccall H5Fget_metadata_read_retry_info, <hid_t> -> Out H5F_retry_info_t -> IO <herr_t>
@@ -655,7 +619,8 @@ type H5F_flush_cb_t a = FunPtr (HId_t -> InOut a -> IO HErr_t)
 
 #endif
 
-#if (H5_VERSION_GE(1,10,0) && (H5Fget_info_vers == 1)) || H5_VERSION_LE(1,8,18)
+-- #if (H5_VERSION_GE(1,10,0) && (H5Fget_info_vers == 1)) || H5_VERSION_LE(1,8,18)
+#if H5Fget_info_vers == 1
 
 -- |Current "global" information about file
 -- (just size info currently)
@@ -672,7 +637,7 @@ type H5F_flush_cb_t a = FunPtr (HId_t -> InOut a -> IO HErr_t)
  
 #stoptype
 
-#else
+#elif H5Fget_info_vers == 2
 
 -- |Current "global" information about file
 -- (just size info currently)
@@ -706,6 +671,12 @@ type H5F_flush_cb_t a = FunPtr (HId_t -> InOut a -> IO HErr_t)
 #field sohm.msgs_info, <H5_ih_info_t>
 
 #stoptype
+
+type H5F_info2_t = H5F_info_t
+
+#else
+
+#error unknown H5Fget_info_vers
 
 #endif
 
