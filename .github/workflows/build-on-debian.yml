@@ -1,15 +1,18 @@
-name: build on debian
+name: build and test on debian
 on: [push]
 jobs:
   build:
     runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        ghc: ['9.6', '9.4', '9.2']
     steps:
       - uses: actions/checkout@v4
       - uses: haskell-actions/setup@v2
         with:
-          ghc-version: '9.4'
+          ghc-version: ${{ matrix.ghc }}
           cabal-version: '3.0.0.0' # Exact version of Cabal      - 
       - name: install hdf5
         run: sudo apt-get install -y libhdf5-dev
-      - name: build with cabal
-        run: cabal build
+      - name: build and test with cabal
+        run: cabal test
