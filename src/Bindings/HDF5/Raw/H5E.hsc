@@ -118,7 +118,9 @@ import Foreign.Ptr.Conventions
 #cinline H5E_OHDR,              <hid_t>
 
 -- |Object atom
+#if !H5_VERSION_GE(1,8,14)
 #cinline H5E_ATOM,              <hid_t>
+#endif
 
 -- |Attribute
 #cinline H5E_ATTR,              <hid_t>
@@ -284,7 +286,9 @@ import Foreign.Ptr.Conventions
 #cinline H5E_MOUNT,             <hid_t>
 
 -- ** Object atom related errors
+#if !H5_VERSION_GE(1,8,14)
 #cinline H5E_BADATOM,           <hid_t>
+#endif
 #cinline H5E_BADGROUP,          <hid_t>
 #cinline H5E_CANTREGISTER,      <hid_t>
 #cinline H5E_CANTINC,           <hid_t>
