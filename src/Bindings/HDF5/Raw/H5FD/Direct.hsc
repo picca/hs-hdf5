@@ -7,11 +7,9 @@
 module Bindings.HDF5.Raw.H5FD.Direct where
 
 import Bindings.HDF5.Raw.H5I
-import Bindings.HDF5.Raw.H5
-import Foreign.Ptr
-import Foreign.Ptr.Conventions
+#ifdef H5_HAVE_DIRECT
 import System.IO.Unsafe(unsafePerformIO)
-import Foreign.C.Types
+#endif /* H5_HAVE_DIRECT */
 
 #mangle_ident "H5FD_DIRECT"
   :: HId_t

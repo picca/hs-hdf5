@@ -17,7 +17,9 @@ import Foreign.Storable
 import Bindings.HDF5.Raw.H5
 import Bindings.HDF5.Raw.H5I
 import Bindings.HDF5.Raw.H5T
+#if H5Fget_info_vers != 1
 import Bindings.HDF5.Raw.H5O
+#endif
 import Foreign.Ptr.Conventions
 
 -- |Maximum length of a link's name
