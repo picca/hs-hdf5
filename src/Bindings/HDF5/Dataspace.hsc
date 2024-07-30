@@ -70,7 +70,7 @@ import Data.Maybe
 import Data.Tagged
 import qualified Data.Vector as V
 import qualified Data.Vector.Storable as SV
-import Foreign hiding (And, Xor)
+import Foreign(nullPtr)
 import Foreign.C
 import Foreign.Ptr.Conventions
 
