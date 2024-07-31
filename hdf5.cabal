@@ -118,7 +118,6 @@ Library
                       , vector
                       , transformers
 
-  pkgconfig-depends: libffi
   if flag(use-hdf5-serial)
     pkgconfig-depends: hdf5-serial
   else
