@@ -26,6 +26,7 @@ source-repository head
 flag use-hdf5-serial
   default: False
   manual: True
+  description: Use Debian's hdf5-serial as a dependency instead of plain hdf5
 
 Library
   hs-source-dirs:       src
@@ -107,16 +108,16 @@ Library
 
   include-dirs:         include
 
-  build-depends:        base >= 3 && < 5
-                      , bindings-DSL
-                      , bytestring
-                      , libffi
-                      , lifted-base
-                      , monad-control
-                      , primitive
-                      , tagged
-                      , vector
-                      , transformers
+  build-depends:        base >= 3 && < 5,
+                        bindings-DSL >= 1.0.25 && < 1.1,
+                        bytestring >= 0.11.5 && < 0.12,
+                        libffi >= 0.2.1 && < 0.3,
+                        lifted-base >= 0.2.3 && < 0.3,
+                        monad-control >= 1.0.3 && < 1.1,
+                        transformers >= 0.6.1 && < 0.7,
+                        primitive >= 0.8.0 && < 0.9,
+                        tagged >= 0.8.8 && < 0.9,
+                        vector >= 0.13.1 && < 0.14
 
   if flag(use-hdf5-serial)
     pkgconfig-depends: hdf5-serial
