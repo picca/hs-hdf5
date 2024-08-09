@@ -174,9 +174,9 @@ import Foreign.Ptr.Conventions
 #if H5_VERSION_GE(1,12,0)
 # ccall H5Sencode2, <hid_t> -> OutArray CChar -> InOut <size_t> -> <hid_t> -> IO <herr_t>
 # ccall H5Sencode1, <hid_t> -> OutArray CChar -> InOut <size_t> -> IO <herr_t>
+h5s_encode = h5s_encode1
 #else
 # ccall H5Sencode,  <hid_t> -> OutArray CChar -> InOut <size_t> -> IO <herr_t>
-h5s_encode1 = h5s_encode
 #endif
 
 -- |Decode a binary object description of dataspace and
