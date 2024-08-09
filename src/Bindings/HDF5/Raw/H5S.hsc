@@ -172,20 +172,11 @@ import Foreign.Ptr.Conventions
 -- Returns non-negative on success, negative on failure.
 --
 #if H5_VERSION_GE(1,12,0)
-# if H5Sencode_vers == 2
--- > herr_t H5Sencode2 (hid_t obj_id, void *buf, size_t *nalloc, hid_t fapl)
-#  ccall H5Sencode2, <hid_t> -> OutArray CChar -> InOut <size_t> -> <hid_t> -> IO <herr_t>
-h5s_encode = h5s_encode2
-# elif H5Sencode_vers == 1
--- > herr_t H5Sencode1(hid_t obj_id, void *buf, size_t *nalloc)
-#  ccall H5Sencode1, <hid_t> -> OutArray CChar -> InOut <size_t> -> IO <herr_t>
-h5s_encode = h5s_encode1
-# else
-#  error "H5Sencode_vers set to invalid value"
-# endif
+# ccall H5Sencode2, <hid_t> -> OutArray CChar -> InOut <size_t> -> <hid_t> -> IO <herr_t>
+# ccall H5Sencode1, <hid_t> -> OutArray CChar -> InOut <size_t> -> IO <herr_t>
 #else
--- > herr_t H5Sencode(hid_t obj_id, void *buf, size_t *nalloc)
-# ccall H5Sencode, <hid_t> -> OutArray CChar -> InOut <size_t> -> IO <herr_t>
+# ccall H5Sencode,  <hid_t> -> OutArray CChar -> InOut <size_t> -> IO <herr_t>
+h5s_encode1 = h5s_encode
 #endif
 
 -- |Decode a binary object description of dataspace and
