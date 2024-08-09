@@ -1,7 +1,10 @@
+{-# LANGUAGE CPP                        #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# OPTIONS_GHC -fno-warn-unused-imports #-}
+
 #include <bindings.h>
 #include <H5version.h>
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE CPP #-}
+
 module Bindings.HDF5.Dataspace
     ( Dataspace
     , DataspaceClass(..)
