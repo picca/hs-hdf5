@@ -1,6 +1,5 @@
 {-# LANGUAGE CPP                        #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# OPTIONS_GHC -fno-warn-unused-imports #-}
 
 #include <bindings.h>
 #include <H5version.h>
@@ -63,7 +62,6 @@ import           Bindings.HDF5.Core
 import           Bindings.HDF5.Error
 import           Bindings.HDF5.Object
 import           Bindings.HDF5.Raw.H5I
-import           Bindings.HDF5.Raw.H5P
 import           Bindings.HDF5.Raw.H5S
 import           Control.Exception       (assert)
 import           Control.Monad
