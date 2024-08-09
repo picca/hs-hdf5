@@ -59,24 +59,24 @@ module Bindings.HDF5.Dataspace
     , getSelectionType
     ) where
 
-import Bindings.HDF5.Core
-import Bindings.HDF5.Error
-import Bindings.HDF5.Object
-import Bindings.HDF5.Raw.H5I
-import Bindings.HDF5.Raw.H5S
-import Bindings.HDF5.Raw.H5P
-import Control.Exception (assert)
-import Control.Monad
-import qualified Data.ByteString as BS
-import qualified Data.ByteString.Unsafe as BS
-import Data.List
-import Data.Maybe
-import Data.Tagged
-import qualified Data.Vector as V
-import qualified Data.Vector.Storable as SV
-import Foreign(nullPtr)
-import Foreign.C
-import Foreign.Ptr.Conventions
+import           Bindings.HDF5.Core
+import           Bindings.HDF5.Error
+import           Bindings.HDF5.Object
+import           Bindings.HDF5.Raw.H5I
+import           Bindings.HDF5.Raw.H5P
+import           Bindings.HDF5.Raw.H5S
+import           Control.Exception       (assert)
+import           Control.Monad
+import qualified Data.ByteString         as BS
+import qualified Data.ByteString.Unsafe  as BS
+import           Data.List
+import           Data.Maybe
+import           Data.Tagged
+import qualified Data.Vector             as V
+import qualified Data.Vector.Storable    as SV
+import           Foreign                 (nullPtr)
+import           Foreign.C
+import           Foreign.Ptr.Conventions
 
 newtype Dataspace = Dataspace HId_t
     deriving (Eq, HId, FromHId, HDFResultType)
