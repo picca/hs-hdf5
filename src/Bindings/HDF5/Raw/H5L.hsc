@@ -79,6 +79,16 @@ h5l_MAX_LINK_NAME_LEN = #const H5L_MAX_LINK_NAME_LEN
 #union_field u.val_size,    <size_t>
 #stoptype
 
+#ccall H5Lget_info1, <hid_t> -> CString -> Out <H5L_info1_t> -> <hid_t> -> IO <herr_t>
+#ccall H5Lget_info_by_idx1, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5L_info1_t> -> <hid_t> -> IO <herr_t>
+
+type H5L_iterate1_t a = FunPtr (HId_t -> CString -> In H5L_info1_t -> InOut a -> IO HErr_t)
+
+#ccall H5Literate1, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate1_t a -> InOut a -> IO <herr_t>
+#ccall H5Literate_by_name1, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate1_t a -> InOut a -> <hid_t> -> IO <herr_t>
+#ccall H5Lvisit1, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate1_t a -> InOut a -> IO <herr_t>
+#ccall H5Lvisit_by_name1, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate1_t a -> InOut a -> <hid_t> -> IO <herr_t>
+
 #starttype H5L_info2_t
 #field type,                <H5L_type_t>
 #field corder_valid,        <hbool_t>
@@ -88,13 +98,15 @@ h5l_MAX_LINK_NAME_LEN = #const H5L_MAX_LINK_NAME_LEN
 #union_field u.val_size,    <size_t>
 #stoptype
 
-#ccall H5Lget_info1, <hid_t> -> CString -> Out <H5L_info1_t> -> <hid_t> -> IO <herr_t>
-
 #ccall H5Lget_info2, <hid_t> -> CString -> Out <H5L_info2_t> -> <hid_t> -> IO <herr_t>
-
-#ccall H5Lget_info_by_idx1, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5L_info1_t> -> <hid_t> -> IO <herr_t>
-
 #ccall H5Lget_info_by_idx2, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5L_info2_t> -> <hid_t> -> IO <herr_t>
+
+type H5L_iterate2_t a = FunPtr (HId_t -> CString -> In H5L_info2_t -> InOut a -> IO HErr_t)
+
+#ccall H5Literate2, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate2_t a -> InOut a -> IO <herr_t>
+#ccall H5Literate_by_name2, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate2_t a -> InOut a -> <hid_t> -> IO <herr_t>
+#ccall H5Lvisit2, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate2_t a -> InOut a -> IO <herr_t>
+#ccall H5Lvisit_by_name2, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate2_t a -> InOut a -> <hid_t> -> IO <herr_t>
 
 #else
 
@@ -110,6 +122,94 @@ h5l_MAX_LINK_NAME_LEN = #const H5L_MAX_LINK_NAME_LEN
 #ccall H5Lget_info, <hid_t> -> CString -> Out <H5L_info_t> -> <hid_t> -> IO <herr_t>
 
 #ccall H5Lget_info_by_idx, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5L_info_t> -> <hid_t> -> IO <herr_t>
+
+-- |Prototype for 'h5l_iterate' / 'h5l_iterate_by_name' operator
+--
+-- > typedef herr_t (*H5L_iterate_t)(hid_t group, const char *name, const H5L_info_t *info,
+-- >     void *op_data);
+
+type H5L_iterate_t a = FunPtr (HId_t -> CString -> In H5L_info_t -> InOut a -> IO HErr_t)
+
+-- |Iterates over links in a group, with user callback routine,
+-- according to the order within an index.
+--
+-- Same pattern of behavior as 'h5g_iterate'.
+--
+-- Returns the return value of the first operator that returns non-zero,
+-- or zero if all members were processed with no operator returning non-zero.
+--
+-- Returns negative if something goes wrong within the library, or the
+-- negative value returned by one of the operators.
+--
+-- > herr_t H5Literate(hid_t grp_id, H5_index_t idx_type,
+-- >     H5_iter_order_t order, hsize_t *idx, H5L_iterate_t op, void *op_data);
+#ccall H5Literate, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate_t a -> InOut a -> IO <herr_t>
+
+-- |Iterates over links in a group, with user callback routine,
+-- according to the order within an index.
+--
+-- Same pattern of behavior as 'h5g_iterate'.
+--
+-- Returns the return value of the first operator that returns non-zero,
+-- or zero if all members were processed with no operator returning non-zero.
+--
+-- Returns negative if something goes wrong within the library, or the
+-- negative value returned by one of the operators.
+--
+-- > herr_t H5Literate_by_name(hid_t loc_id, const char *group_name,
+-- >     H5_index_t idx_type, H5_iter_order_t order, hsize_t *idx,
+-- >     H5L_iterate_t op, void *op_data, hid_t lapl_id);
+#ccall H5Literate_by_name, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate_t a -> InOut a -> <hid_t> -> IO <herr_t>
+
+-- |Recursively visit all the links in a group and all
+-- the groups that are linked to from that group.  Links within
+-- each group are visited according to the order within the
+-- specified index (unless the specified index does not exist for
+-- a particular group, then the \"name\" index is used).
+--
+-- NOTE: Each _link_ reachable from the initial group will only be
+-- visited once.  However, because an object may be reached from
+-- more than one link, the visitation may call the application's
+-- callback with more than one link that points to a particular
+-- _object_.
+--
+-- Returns the return value of the first operator that
+-- returns non-zero, or zero if all members were
+-- processed with no operator returning non-zero.
+--
+-- Returns negative if something goes wrong within the
+-- library, or the negative value returned by one
+-- of the operators.
+--
+-- > herr_t H5Lvisit(hid_t grp_id, H5_index_t idx_type, H5_iter_order_t order,
+-- >     H5L_iterate_t op, void *op_data);
+#ccall H5Lvisit, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate_t a -> InOut a -> IO <herr_t>
+
+-- |Recursively visit all the links in a group and all
+-- the groups that are linked to from that group.  Links within
+-- each group are visited according to the order within the
+-- specified index (unless the specified index does not exist for
+-- a particular group, then the \"name\" index is used).
+--
+-- NOTE: Each _link_ reachable from the initial group will only be
+-- visited once.  However, because an object may be reached from
+-- more than one link, the visitation may call the application's
+-- callback with more than one link that points to a particular
+-- _object_.
+--
+-- Returns the return value of the first operator that
+-- returns non-zero, or zero if all members were
+-- processed with no operator returning non-zero.
+--
+-- Returns negative if something goes wrong within the
+-- library, or the negative value returned by one
+-- of the operators.
+--
+-- > herr_t H5Lvisit_by_name(hid_t loc_id, const char *group_name,
+-- >     H5_index_t idx_type, H5_iter_order_t order, H5L_iterate_t op,
+-- >     void *op_data, hid_t lapl_id);
+#ccall H5Lvisit_by_name, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate_t a -> InOut a -> <hid_t> -> IO <herr_t>
+
 
 #endif
 
@@ -191,18 +291,6 @@ type H5L_query_func_t a b = FunPtr (CString -> Ptr a -> CSize -> Out b -> CSize 
 #stoptype
 
 
--- |Prototype for 'h5l_iterate' / 'h5l_iterate_by_name' operator
---
--- > typedef herr_t (*H5L_iterate_t)(hid_t group, const char *name, const H5L_info_t *info,
--- >     void *op_data);
-
-#if H5_VERSION_GE(1,8,0)
-type H5L_iterate_t a = FunPtr (HId_t -> CString -> In H5L_info_t -> InOut a -> IO HErr_t)
-#endif
-
-#if H5_VERSION_GE(1,12,0)
-type H5L_iterate2_t a = FunPtr (HId_t -> CString -> In H5L_info2_t -> InOut a -> IO HErr_t)
-#endif
 
 -- |Callback for external link traversal
 --
@@ -335,86 +423,6 @@ type H5L_elink_traverse_t a = FunPtr (CString
 -- >     H5_index_t idx_type, H5_iter_order_t order, hsize_t n,
 -- >     char *name /*out*/, size_t size, hid_t lapl_id);
 #ccall H5Lget_name_by_idx, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> OutArray CChar -> <ssize_t> -> <hid_t> -> IO <ssize_t>
-
--- |Iterates over links in a group, with user callback routine,
--- according to the order within an index.
---
--- Same pattern of behavior as 'h5g_iterate'.
---
--- Returns the return value of the first operator that returns non-zero,
--- or zero if all members were processed with no operator returning non-zero.
---
--- Returns negative if something goes wrong within the library, or the
--- negative value returned by one of the operators.
---
--- > herr_t H5Literate(hid_t grp_id, H5_index_t idx_type,
--- >     H5_iter_order_t order, hsize_t *idx, H5L_iterate_t op, void *op_data);
-#ccall H5Literate, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate_t a -> InOut a -> IO <herr_t>
-
--- |Iterates over links in a group, with user callback routine,
--- according to the order within an index.
---
--- Same pattern of behavior as 'h5g_iterate'.
---
--- Returns the return value of the first operator that returns non-zero,
--- or zero if all members were processed with no operator returning non-zero.
---
--- Returns negative if something goes wrong within the library, or the
--- negative value returned by one of the operators.
---
--- > herr_t H5Literate_by_name(hid_t loc_id, const char *group_name,
--- >     H5_index_t idx_type, H5_iter_order_t order, hsize_t *idx,
--- >     H5L_iterate_t op, void *op_data, hid_t lapl_id);
-#ccall H5Literate_by_name, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate_t a -> InOut a -> <hid_t> -> IO <herr_t>
-
--- |Recursively visit all the links in a group and all
--- the groups that are linked to from that group.  Links within
--- each group are visited according to the order within the
--- specified index (unless the specified index does not exist for
--- a particular group, then the \"name\" index is used).
---
--- NOTE: Each _link_ reachable from the initial group will only be
--- visited once.  However, because an object may be reached from
--- more than one link, the visitation may call the application's
--- callback with more than one link that points to a particular
--- _object_.
---
--- Returns the return value of the first operator that
--- returns non-zero, or zero if all members were
--- processed with no operator returning non-zero.
---
--- Returns negative if something goes wrong within the
--- library, or the negative value returned by one
--- of the operators.
---
--- > herr_t H5Lvisit(hid_t grp_id, H5_index_t idx_type, H5_iter_order_t order,
--- >     H5L_iterate_t op, void *op_data);
-#ccall H5Lvisit, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate_t a -> InOut a -> IO <herr_t>
-
--- |Recursively visit all the links in a group and all
--- the groups that are linked to from that group.  Links within
--- each group are visited according to the order within the
--- specified index (unless the specified index does not exist for
--- a particular group, then the \"name\" index is used).
---
--- NOTE: Each _link_ reachable from the initial group will only be
--- visited once.  However, because an object may be reached from
--- more than one link, the visitation may call the application's
--- callback with more than one link that points to a particular
--- _object_.
---
--- Returns the return value of the first operator that
--- returns non-zero, or zero if all members were
--- processed with no operator returning non-zero.
---
--- Returns negative if something goes wrong within the
--- library, or the negative value returned by one
--- of the operators.
---
--- > herr_t H5Lvisit_by_name(hid_t loc_id, const char *group_name,
--- >     H5_index_t idx_type, H5_iter_order_t order, H5L_iterate_t op,
--- >     void *op_data, hid_t lapl_id);
-#ccall H5Lvisit_by_name, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate_t a -> InOut a -> <hid_t> -> IO <herr_t>
 
 -- |Creates a user-defined link of type 'link_type' named 'link_name'
 -- with user-specified data 'udata'.
