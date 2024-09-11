@@ -17,9 +17,10 @@ import Foreign.Storable
 import Bindings.HDF5.Raw.H5
 import Bindings.HDF5.Raw.H5I
 import Bindings.HDF5.Raw.H5T
-#if H5Fget_info_vers != 1
+#if H5_VERSION_GE(1,12,0)
 import Bindings.HDF5.Raw.H5O
 #endif
+
 import Foreign.Ptr.Conventions
 
 -- |Maximum length of a link's name
@@ -66,42 +67,47 @@ h5l_MAX_LINK_NAME_LEN = #const H5L_MAX_LINK_NAME_LEN
 #newtype_const H5L_type_t, H5L_TYPE_UD_MIN
 
 -- |Information struct for link (for 'h5l_get_info' / 'h5l_get_info_by_idx')
-#if H5Fget_info_vers == 1
-#starttype H5L_info_t
-#elif H5Fget_info_vers == 2
+
+#if H5_VERSION_GE(1,12,0)
+
 #starttype H5L_info2_t
-#else
-#error "unknown info vers"
-#endif
-
--- |Type of link
 #field type,                <H5L_type_t>
-
--- |Indicate if creation order is valid
 #field corder_valid,        <hbool_t>
-
--- |Creation order
 #field corder,              Int64
-
--- |Character set of link name
 #field cset,                <H5T_cset_t>
-
-#if (H5Fget_info_vers == 1)
--- |Address hard link points to
-#union_field u.address,     <haddr_t>
-#else
 #union_field u.token,       <H5O_token_t>
-#endif
-
-
-
--- |Size of a soft link or UD link value
 #union_field u.val_size,    <size_t>
 #stoptype
 
-#if H5Fget_info_vers == 2
-type H5L_info_t = H5L_info2_t
+#ccall H5Lget_info1, <hid_t> -> CString -> Out <H5L_info_t> -> <hid_t> -> IO <herr_t>
+
+#ccall H5Lget_info2, <hid_t> -> CString -> Out <H5L_info2_t> -> <hid_t> -> IO <herr_t>
+
+h5l_get_info = h5l_get_info1
+
+#ccall H5Lget_info_by_idx1, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5L_info_t> -> <hid_t> -> IO <herr_t>
+
+#ccall H5Lget_info_by_idx2, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5L_info2_t> -> <hid_t> -> IO <herr_t>
+
+h5l_get_info_by_idx = h5l_get_info_by_idx1
+
+#else
+
+#starttype H5L_info_t
+#field type,                <H5L_type_t>
+#field corder_valid,        <hbool_t>
+#field corder,              Int64
+#field cset,                <H5T_cset_t>
+#union_field u.address,     <haddr_t>
+#union_field u.val_size,    <size_t>
+#stoptype
+
+#ccall H5Lget_info, <hid_t> -> CString -> Out <H5L_info_t> -> <hid_t> -> IO <herr_t>
+
+#ccall H5Lget_info_by_idx, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5L_info_t> -> <hid_t> -> IO <herr_t>
+
 #endif
+
 
 -- /* The H5L_class_t struct can be used to override the behavior of a
 --  * "user-defined" link class. Users should populate the struct with callback
@@ -184,10 +190,13 @@ type H5L_query_func_t a b = FunPtr (CString -> Ptr a -> CSize -> Out b -> CSize 
 --
 -- > typedef herr_t (*H5L_iterate_t)(hid_t group, const char *name, const H5L_info_t *info,
 -- >     void *op_data);
--- #if (H5Fget_info_vers == 1)
+
+#if H5_VERSION_GE(1,8,0)
 type H5L_iterate_t a = FunPtr (HId_t -> CString -> In H5L_info_t -> InOut a -> IO HErr_t)
-#if (H5Fget_info_vers != 1)
-type H5L_iterate2_t a = H5L_iterate_t a
+#endif
+
+#if H5_VERSION_GE(1,12,0)
+type H5L_iterate2_t a = FunPtr (HId_t -> CString -> In H5L_info2_t -> InOut a -> IO HErr_t)
 #endif
 
 -- |Callback for external link traversal
@@ -308,23 +317,6 @@ type H5L_elink_traverse_t a = FunPtr (CString
 --
 -- > htri_t H5Lexists(hid_t loc_id, const char *name, hid_t lapl_id);
 #ccall H5Lexists, <hid_t> -> CString -> <hid_t> -> IO <htri_t>
-
--- |Gets metadata for a link.
---
--- Returns non-negative on success, negative on failure.
---
--- > herr_t H5Lget_info(hid_t loc_id, const char *name,
--- >     H5L_info_t *linfo /*out*/, hid_t lapl_id);
-#ccall H5Lget_info, <hid_t> -> CString -> Out <H5L_info_t> -> <hid_t> -> IO <herr_t>
-
--- |Gets metadata for a link, according to the order within an index.
---
--- Returns non-negative on success, negative on failure.
---
--- > herr_t H5Lget_info_by_idx(hid_t loc_id, const char *group_name,
--- >     H5_index_t idx_type, H5_iter_order_t order, hsize_t n,
--- >     H5L_info_t *linfo /*out*/, hid_t lapl_id);
-#ccall H5Lget_info_by_idx, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5L_info_t> -> <hid_t> -> IO <herr_t>
 
 -- |Gets name for a link, according to the order within an index.
 --
@@ -504,4 +496,3 @@ type H5L_elink_traverse_t a = FunPtr (CString
 -- > herr_t H5Lcreate_external(const char *file_name, const char *obj_name,
 -- >     hid_t link_loc_id, const char *link_name, hid_t lcpl_id, hid_t lapl_id);
 #ccall H5Lcreate_external, CString -> CString -> <hid_t> -> CString -> <hid_t> -> <hid_t> -> IO <herr_t>
-
