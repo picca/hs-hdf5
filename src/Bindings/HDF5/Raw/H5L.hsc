@@ -68,6 +68,16 @@ h5l_MAX_LINK_NAME_LEN = #const H5L_MAX_LINK_NAME_LEN
 
 -- |Information struct for link (for 'h5l_get_info' / 'h5l_get_info_by_idx')
 
+#starttype H5L_info_t
+#field type,                <H5L_type_t>
+#field corder_valid,        <hbool_t>
+#field corder,              Int64
+#field cset,                <H5T_cset_t>
+#union_field u.address,     <haddr_t>
+#union_field u.val_size,    <size_t>
+#stoptype
+
+
 #if H5_VERSION_GE(1,12,0)
 
 #starttype H5L_info2_t
@@ -92,15 +102,6 @@ h5l_get_info = h5l_get_info1
 h5l_get_info_by_idx = h5l_get_info_by_idx1
 
 #else
-
-#starttype H5L_info_t
-#field type,                <H5L_type_t>
-#field corder_valid,        <hbool_t>
-#field corder,              Int64
-#field cset,                <H5T_cset_t>
-#union_field u.address,     <haddr_t>
-#union_field u.val_size,    <size_t>
-#stoptype
 
 #ccall H5Lget_info, <hid_t> -> CString -> Out <H5L_info_t> -> <hid_t> -> IO <herr_t>
 
