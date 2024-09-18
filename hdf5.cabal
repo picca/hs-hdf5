@@ -1,5 +1,5 @@
 name:                   hdf5
-version:                1.8.12
+version:                1.8.13
 stability:              provisional
 
 cabal-version:          >= 1.10
@@ -14,7 +14,7 @@ category:               Database
 synopsis:               Haskell interface to the HDF5 scientific data storage library.
 description:            This is a low-level but typesafe Haskell interface to the HDF5 library.  No pointers necessary.
 
-extra-source-files: Changelog
+extra-source-files: Changelog.md
                     include/bindings.h
                     include/mangle.h
                     include/util.h

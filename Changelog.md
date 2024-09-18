@@ -1,4 +1,10 @@
+1.8.13 [2024-09-18]
+------
+
+* Fix compilation with hdf5 1.10
+
 1.8.12 [2024-08-02]
+------
 
 * Add flag "use-hdf5-serial" to switch between "hdf5" and "hdf5-serial" as a pkgconfig dependency
 * Add pipeline ensuring the project compiles and the tests run with ghcup and ghc 9.0, 9.2, 9.4 and 9.6.
