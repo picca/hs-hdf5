@@ -25,7 +25,7 @@ withTestFile callback = withSystemTempFile "hs-hdf5.hdf" callback2 where
     release file = do F.closeFile file
 
 withTestFile' :: (F.File -> IO a) -> IO a
-withTestFile' callback = withTestFile (\path file -> callback file)
+withTestFile' callback = withTestFile (\_path file -> callback file)
 
 withGroup :: BS.ByteString -> (F.File -> IO a) -> IO a
 withGroup name f = withTestFile' $ \file -> do

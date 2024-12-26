@@ -4,11 +4,8 @@ module Spec.Group ( describeGroup ) where
 
 import           Test.Hspec
 
-import           Bindings.HDF5.Core    (IndexType (..), IterOrder (..), hid)
-import qualified Bindings.HDF5.Group   as G
+import           Bindings.HDF5.Core    (IndexType (..), IterOrder (..))
 import qualified Bindings.HDF5.Link    as L
-import qualified Bindings.HDF5.Object  as OB
-import qualified Data.ByteString.Char8 as BS
 
 import           Spec.Util
 
