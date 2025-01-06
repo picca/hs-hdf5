@@ -14,21 +14,6 @@
 #include <H5public.h>
 #include <string.h>
 
-// These version-check macros were introduced in HDF5 1.8.7
-#ifndef H5_VERSION_GE
-#define H5_VERSION_GE(a,b,c)                    \
-    ((H5_VERS_MAJOR > a) || (H5_VERS_MAJOR == a && ( \
-        H5_VERS_MINOR > b || (H5_VERS_MINOR == b && \
-            H5_VERS_RELEASE >= c))))
-#endif
-
-#ifndef H5_VERSION_LE
-#define H5_VERSION_LE(a,b,c)                     \
-    ((H5_VERS_MAJOR < a) || (H5_VERS_MAJOR == a && ( \
-        H5_VERS_MINOR < b || (H5_VERS_MINOR == b && \
-            H5_VERS_RELEASE <= c))))
-#endif
-
 #define signed(t)       ((t)(-1) < 0)
 #define floating(t)     ((t)(int)(t) 1.4 == (t) 1.4)
 #define nbitsof(t)      (sizeof(t) * 8)
@@ -44,11 +29,11 @@ char *dupstr(char *s) {
 char *mapstrn(char *s, unsigned n, int (*f)(int)) {
     unsigned i;
     char *t = dupstr(s);
-    
+
     for (i = 0; i < n && t[i] != '\0'; i++) {
         t[i] = f(t[i]);
     }
-    
+
     return t;
 }
 
