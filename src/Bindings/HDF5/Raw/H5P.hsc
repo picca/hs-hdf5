@@ -57,11 +57,6 @@ import Foreign.Ptr.Conventions
 #cinline H5P_LINK_CREATE_DEFAULT,           <hid_t>
 #cinline H5P_LINK_ACCESS_DEFAULT,           <hid_t>
 
-#if !H5_VERSION_GE(1,8,18)
-#cinline H5P_ATTRIBUTE_ACCESS,              <hid_t>
-#cinline H5P_ATTRIBUTE_ACCESS_DEFAULT,      <hid_t>
-#endif
-
 -- |Default value for all property list classes
 #newtype_const hid_t, H5P_DEFAULT
 
@@ -135,16 +130,6 @@ type H5P_prp_set_func_t    a = FunPtr (HId_t -> CString -> CSize -> InOut a -> I
 -- > typedef herr_t (*H5P_prp_get_func_t)(hid_t prop_id, const char *name,
 -- >     size_t size, void *value);
 type H5P_prp_get_func_t    a = FunPtr (HId_t -> CString -> CSize -> InOut a -> IO HErr_t)
-
-#if H5_VERSION_GE(1,10,0)
-
--- > typedef herr_t (*H5P_prp_encode_func_t)(const void *value, void **buf, size_t *size);
-type H5P_prp_encode_func_t a b = FunPtr (In a -> Out b -> Out CSize)
-
--- > typedef herr_t (*H5P_prp_decode_func_t)(const void **buf, void *value);
-type H5P_prp_decode_func_t a b = FunPtr (In a -> Out b)
-
-#endif
 
 -- |Parameters:
 --
@@ -230,8 +215,6 @@ type H5P_prp_close_func_t a = FunPtr (CString -> CSize -> InOut a -> IO HErr_t)
 -- > typedef herr_t (*H5P_iterate_t)(hid_t id, const char *name, void *iter_data);
 type H5P_iterate_t a = FunPtr (HId_t -> CString -> InOut a -> IO HErr_t)
 
-#if H5_VERSION_GE(1,8,8)
-
 -- |Actual IO mode property
 #newtype H5D_mpio_actual_chunk_opt_mode_t
 
@@ -241,10 +224,6 @@ type H5P_iterate_t a = FunPtr (HId_t -> CString -> InOut a -> IO HErr_t)
 #newtype_const H5D_mpio_actual_chunk_opt_mode_t, H5D_MPIO_NO_CHUNK_OPTIMIZATION
 #newtype_const H5D_mpio_actual_chunk_opt_mode_t, H5D_MPIO_LINK_CHUNK
 #newtype_const H5D_mpio_actual_chunk_opt_mode_t, H5D_MPIO_MULTI_CHUNK
-
-#if H5_VERSION_LE(1,8,10)
-#newtype_const H5D_mpio_actual_chunk_opt_mode_t, H5D_MPIO_MULTI_CHUNK_NO_OPT
-#endif
 
 -- |The following four values are conveniently defined as a bit field so that
 -- we can switch from the default to indpendent or collective and then to
@@ -264,10 +243,6 @@ type H5P_iterate_t a = FunPtr (HId_t -> CString -> InOut a -> IO HErr_t)
 -- |The contiguous case is separate from the bit field.
 #newtype_const H5D_mpio_actual_io_mode_t, H5D_MPIO_CONTIGUOUS_COLLECTIVE
 
-#endif
-
-#if H5_VERSION_GE(1,8,10)
-
 -- | Broken collective IO property
 #newtype H5D_mpio_no_collective_cause_t
 
@@ -277,14 +252,6 @@ type H5P_iterate_t a = FunPtr (HId_t -> CString -> InOut a -> IO HErr_t)
 #newtype_const H5D_mpio_no_collective_cause_t, H5D_MPIO_DATA_TRANSFORMS
 #newtype_const H5D_mpio_no_collective_cause_t, H5D_MPIO_NOT_SIMPLE_OR_SCALAR_DATASPACES
 #newtype_const H5D_mpio_no_collective_cause_t, H5D_MPIO_NOT_CONTIGUOUS_OR_CHUNKED_DATASET
-
-#if H5_VERSION_GE(1,10,2)
-#newtype_const H5D_mpio_no_collective_cause_t, H5D_MPIO_NO_COLLECTIVE_MAX_CAUSE
-#else
-#newtype_const H5D_mpio_no_collective_cause_t, H5D_MPIO_FILTERS
-#endif
-
-#endif
 
 -- /*********************/
 -- /* Public Prototypes */
@@ -530,16 +497,6 @@ type H5P_iterate_t a = FunPtr (HId_t -> CString -> InOut a -> IO HErr_t)
 --
 -- > htri_t H5Pexist(hid_t plist_id, const char *name);
 #ccall H5Pexist, <hid_t> -> CString -> IO <htri_t>
-
-#if H5_VERSION_GE(1,10,0)
-
--- > herr_t H5Pencode(hid_t plist_id, void *buf, size_t *nalloc);
-#ccall H5Pencode, <hid_t> ->  In a -> Out <size_t> -> IO <herr_t>
-
--- > H5_DLL hid_t  H5Pdecode(const void *buf);
-#ccall H5Pdecode, In a -> IO <hid_t>
-
-#endif
 
 -- |Routine to query the size of a property in a property list or class.
 --
@@ -1182,16 +1139,6 @@ type H5P_iterate_t a = FunPtr (HId_t -> CString -> InOut a -> IO HErr_t)
 -- > herr_t H5Pget_shared_mesg_phase_change(hid_t plist_id, unsigned *max_list, unsigned *min_btree);
 #ccall H5Pget_shared_mesg_phase_change, <hid_t> -> Out CUInt -> Out CUInt -> IO <herr_t>
 
-#if H5_VERSION_GE(1,10,0)
-
--- > H5_DLL herr_t H5Pset_file_space(hid_t plist_id, H5F_file_space_type_t strategy, hsize_t threshold);
-#ccall H5Pset_file_space, <hid_t> -> H5F_file_space_type_t -> <hsize_t> -> IO <herr_t>
-
--- > H5_DLL herr_t H5Pget_file_space(hid_t plist_id, H5F_file_space_type_t *strategy, hsize_t *threshold);
-#ccall H5Pget_file_space, <hid_t> -> Out H5F_file_space_type_t -> Out <hsize_t> -> IO <herr_t>
-
-#endif
-
 -- * File access property list (FAPL) routines
 
 -- |Sets the alignment properties of a file access property list
@@ -1563,8 +1510,6 @@ type H5P_iterate_t a = FunPtr (HId_t -> CString -> InOut a -> IO HErr_t)
 -- >     H5F_libver_t *high);
 #ccall H5Pget_libver_bounds, <hid_t> -> Out H5F_libver_t -> Out H5F_libver_t -> IO <herr_t>
 
-#if H5_VERSION_GE(1,8,7)
-
 -- |Sets the number of files opened through external links
 -- from the file associated with this fapl to be held open
 -- in that file's external file cache.  When the maximum
@@ -1586,10 +1531,6 @@ type H5P_iterate_t a = FunPtr (HId_t -> CString -> InOut a -> IO HErr_t)
 --
 -- > herr_t H5Pget_elink_file_cache_size(hid_t plist_id, unsigned *efc_size);
 #ccall H5Pget_elink_file_cache_size, <hid_t> -> Out CUInt -> IO <herr_t>
-
-#endif
-
-#if H5_VERSION_GE(1,8,9)
 
 -- |Sets the initial file image. Some file drivers can initialize
 -- the starting data in a file from a buffer.
@@ -1646,34 +1587,6 @@ type H5P_iterate_t a = FunPtr (HId_t -> CString -> InOut a -> IO HErr_t)
 -- >    H5FD_file_image_callbacks_t *callbacks_ptr);
 #ccall H5Pget_file_image_callbacks, <hid_t> -> Out H5FD_file_image_callbacks_t -> IO <herr_t>
 
-#endif
-
-#if H5_VERSION_GE(1,10,0)
-
--- > herr_t H5Pset_metadata_read_attempts(hid_t plist_id, unsigned attempts);
-#ccall H5Pget_metadata_read_attempts, <hid_t> -> Out CUInt -> IO <herr_t>
--- > herr_t H5Pset_object_flush_cb(hid_t plist_id, H5F_flush_cb_t func, void *udata);
-#ccall H5Pset_object_flush_cb , <hid_t> -> H5F_flush_cb_t a -> Out a -> IO <herr_t>
--- > herr_t H5Pget_object_flush_cb(hid_t plist_id, H5F_flush_cb_t *func, void **udata);
-#ccall H5Pget_object_flush_cb, <hid_t> -> H5F_flush_cb_t a -> Out (Out a) -> IO <herr_t>
--- > herr_t H5Pset_mdc_log_options(hid_t plist_id, hbool_t is_enabled, const char *location, hbool_t start_on_access);
-#ccall H5Pset_mdc_log_options, <hid_t> -> <hbool_t> -> CString -> <hbool_t> -> IO <herr_t>
--- > herr_t H5Pget_mdc_log_options(hid_t plist_id, hbool_t *is_enabled, char *location, size_t *location_size, hbool_t *start_on_access);
-#ccall H5Pget_mdc_log_options, <hid_t> -> Out <hbool_t> -> Out CString -> Out <size_t> -> Out <hbool_t> -> IO <herr_t>
-
-#ifdef H5_HAVE_PARALLEL
--- > herr_t H5Pset_coll_metadata_read(hid_t plist_id, hbool_t is_collective);
-#ccall H5Pset_all_coll_metadata_ops, <hid_t> -> <hbool_t> -> IO <herr_t>
--- > herr_t H5Pget_coll_metadata_read(hid_t plist_id, hbool_t *is_collective);
-#ccall H5Pget_all_coll_metadata_ops, <hid_t> -> Out <hbool_t> -> IO <herr_t>
--- > herr_t H5Pset_coll_metadata_write(hid_t plist_id, hbool_t is_collective);
-#ccall H5Pset_coll_metadata_write, <hid_t> -> <hbool_t> -> IO <herr_t>
--- > herr_t H5Pget_coll_metadata_write(hid_t plist_id, hbool_t *is_collective);
-#ccall H5Pget_coll_metadata_write, <hid_t> -> Out <hbool_t> -> IO <herr_t>
-#endif /* H5_HAVE_PARALLEL */
-
-#endif
-
 -- * Dataset creation property list (DCPL) routines
 
 -- |Sets the layout of raw data in the file.
@@ -1712,25 +1625,6 @@ type H5P_iterate_t a = FunPtr (HId_t -> CString -> InOut a -> IO HErr_t)
 -- > int H5Pget_chunk(hid_t plist_id, int max_ndims, hsize_t dim[]/*out*/);
 #ccall H5Pget_chunk, <hid_t> -> CInt -> OutArray <hsize_t> -> IO CInt
 
-#if H5_VERSION_GE(1,10,0)
--- > herr_t H5Pset_virtual(hid_t dcpl_id, hid_t vspace_id,
--- >     const char *src_file_name, const char *src_dset_name, hid_t src_space_id);
-#ccall H5Pset_virtual, <hid_t> -> <hid_t> -> CString -> CString -> <hid_t> -> IO <herr_t>
--- > herr_t H5Pget_virtual_count(hid_t dcpl_id, size_t *count/*out*/);
-#ccall H5Pget_virtual_count, <hid_t> -> Out <size_t> -> IO <herr_t>
--- > hid_t H5Pget_virtual_vspace(hid_t dcpl_id, size_t index);
-#ccall H5Pget_virtual_vspace, <hid_t> -> <size_t> -> IO <hid_t>
--- > hid_t H5Pget_virtual_srcspace(hid_t dcpl_id, size_t index);
-#ccall H5Pget_virtual_srcspace, <hid_t> -> <size_t> -> IO <hid_t>
--- > ssize_t H5Pget_virtual_filename(hid_t dcpl_id, size_t index,
--- >     char *name/*out*/, size_t size);
-#ccall H5Pget_virtual_filename, <hid_t> -> <size_t> -> Out CString -> <size_t> -> IO <ssize_t>
--- > ssize_t H5Pget_virtual_dsetname(hid_t dcpl_id, size_t index,
--- >     char *name/*out*/, size_t size);
-#ccall H5Pget_virtual_dsetname, <hid_t> -> <size_t> -> Out CString -> <size_t> -> IO <ssize_t>
-
-#endif
-
 -- |Adds an external file to the list of external files. 'plist_id'
 -- should be an object ID for a dataset creation property list.
 -- 'name' is the name of an external file, 'offset' is the location
@@ -1747,15 +1641,6 @@ type H5P_iterate_t a = FunPtr (HId_t -> CString -> InOut a -> IO HErr_t)
 -- > herr_t H5Pset_external(hid_t plist_id, const char *name, off_t offset,
 -- >           hsize_t size);
 #ccall H5Pset_external, <hid_t> -> CString -> <off_t> -> <hsize_t> -> IO <herr_t>
-
-#if H5_VERSION_GE(1,10,0)
-
--- > herr_t H5Pset_chunk_opts(hid_t plist_id, unsigned opts);
-#ccall H5Pset_chunk_opts, <hid_t> -> CUInt -> IO <herr_t>
--- > herr_t H5Pget_chunk_opts(hid_t plist_id, unsigned *opts);
-#ccall H5Pget_chunk_opts, <hid_t> -> Out CUInt -> IO <herr_t>
-
-#endif
 
 -- |Returns the number of external files for this dataset, or negative
 -- on failure.
@@ -1905,9 +1790,6 @@ type H5P_iterate_t a = FunPtr (HId_t -> CString -> InOut a -> IO HErr_t)
 -- >    *fill_time/*out*/);
 #ccall H5Pget_fill_time, <hid_t> -> Out <H5D_fill_time_t> -> IO <herr_t>
 
-
-#if H5_VERSION_GE(1,8,3)
-
 -- * Dataset access property list (DAPL) routines
 
 -- |Set the number of objects in the meta data cache and the
@@ -1949,31 +1831,6 @@ type H5P_iterate_t a = FunPtr (HId_t -> CString -> InOut a -> IO HErr_t)
 -- >        size_t *rdcc_nbytes/*out*/,
 -- >        double *rdcc_w0/*out*/);
 #ccall H5Pget_chunk_cache, <hid_t> -> Out <size_t> -> Out <size_t> -> Out CDouble -> IO <herr_t>
-
-#endif
-
-#if H5_VERSION_GE(1,10,0)
-
--- > +H5_DLL herr_t H5Pset_virtual_view(hid_t plist_id, H5D_vds_view_t view);
-#ccall H5Pset_virtual_view, <hid_t> -> H5D_vds_view_t -> IO <herr_t>
--- > +H5_DLL herr_t H5Pget_virtual_view(hid_t plist_id, H5D_vds_view_t *view);
-#ccall H5Pget_virtual_view, <hid_t> -> Out H5D_vds_view_t -> IO <herr_t>
--- > +H5_DLL herr_t H5Pset_virtual_printf_gap(hid_t plist_id, hsize_t gap_size);
-#ccall H5Pset_virtual_printf_gap, <hid_t> ->  <hsize_t> -> IO <herr_t>
--- > +H5_DLL herr_t H5Pget_virtual_printf_gap(hid_t plist_id, hsize_t *gap_size);
-#ccall H5Pget_virtual_printf_gap, <hid_t> -> Out <hsize_t> -> IO <herr_t>
--- > +H5_DLL herr_t H5Pset_append_flush(hid_t plist_id, unsigned ndims,
--- > +    const hsize_t boundary[], H5D_append_cb_t func, void *udata);
-#ccall H5Pset_append_flush, <hid_t> -> CUInt -> In <hsize_t> -> H5D_append_cb_t a -> In a -> IO <herr_t>
--- > +H5_DLL herr_t H5Pget_append_flush(hid_t plist_id, unsigned dims,
--- > +    hsize_t boundary[], H5D_append_cb_t *func, void **udata);
-#ccall H5Pget_append_flush, <hid_t> -> CUInt -> In <hsize_t> -> H5D_append_cb_t a -> Out (Out a) -> IO <herr_t>
--- > herr_t H5Pset_efile_prefix(hid_t dapl_id, const char* prefix);
-#ccall H5Pset_efile_prefix, <hid_t> -> CString -> IO <herr_t>
--- > ssize_t H5Pget_efile_prefix(hid_t dapl_id, char* prefix /*out*/, size_t size);
-#ccall H5Pget_efile_prefix, <hid_t> -> Out CString -> <size_t> -> IO <ssize_t>
-
-#endif
 
 -- * Dataset xfer property list (DXPL) routines
 
@@ -2163,8 +2020,6 @@ type H5P_iterate_t a = FunPtr (HId_t -> CString -> InOut a -> IO HErr_t)
 
 #ifdef H5_HAVE_PARALLEL
 
-#if H5_VERSION_GE(1,8,8)
-
 -- TODO: docs
 -- > herr_t H5Pget_mpio_actual_chunk_opt_mode(hid_t plist_id, H5D_mpio_actual_chunk_opt_mode_t *actual_chunk_opt_mode);
 #ccall H5Pget_mpio_actual_chunk_opt_mode, <hid_t> -> Out H5D_mpio_actual_chunk_opt_mode_t -> IO <herr_t>
@@ -2172,15 +2027,9 @@ type H5P_iterate_t a = FunPtr (HId_t -> CString -> InOut a -> IO HErr_t)
 -- > herr_t H5Pget_mpio_actual_io_mode(hid_t plist_id, H5D_mpio_actual_io_mode_t *actual_io_mode);
 #ccall H5Pget_mpio_actual_io_mode, <hid_t> -> Out H5D_mpio_actual_io_mode_t -> IO <herr_t>
 
-#endif
-
-#if H5_VERSION_GE(1,8,10)
-
 -- TODO: ensure ptr sizes match and change Word32 to H5D_mpio_no_collective_cause_t
 -- > herr_t H5Pget_mpio_no_collective_cause(hid_t plist_id, uint32_t *local_no_collective_cause, uint32_t *global_no_collective_cause);
 #ccall H5Pget_mpio_no_collective_cause, <hid_t> -> Out Word32 -> Out Word32 -> IO <herr_t>
-
-#endif
 
 #endif /* H5_HAVE_PARALLEL */
 
@@ -2339,8 +2188,6 @@ type H5P_iterate_t a = FunPtr (HId_t -> CString -> InOut a -> IO HErr_t)
 -- > ssize_t H5Pget_elink_prefix(hid_t plist_id, char *prefix, size_t size);
 #ccall H5Pget_elink_prefix, <hid_t> -> OutArray CChar -> <size_t> -> IO <ssize_t>
 
-#if H5_VERSION_GE(1,8,2)
-
 -- |Gets the file access property list identifier that is
 -- set for link access property.
 --
@@ -2355,10 +2202,6 @@ type H5P_iterate_t a = FunPtr (HId_t -> CString -> InOut a -> IO HErr_t)
 --
 -- > herr_t H5Pset_elink_fapl(hid_t lapl_id, hid_t fapl_id);
 #ccall H5Pset_elink_fapl, <hid_t> -> <hid_t> -> IO <herr_t>
-
-#endif
-
-#if H5_VERSION_GE(1,8,3)
 
 -- |Sets the file access flags to be used when traversing an
 -- external link.  This should be either 'h5f_ACC_RDONLY' or
@@ -2394,8 +2237,6 @@ type H5P_iterate_t a = FunPtr (HId_t -> CString -> InOut a -> IO HErr_t)
 -- > herr_t H5Pget_elink_cb(hid_t lapl_id, H5L_elink_traverse_t *func, void **op_data);
 #ccall H5Pget_elink_cb, <hid_t> -> Out (H5L_elink_traverse_t a) -> Out (Ptr a) -> IO <herr_t>
 
-#endif
-
 -- * Object copy property list (OCPYPL) routines
 
 -- |Set properties when copying an object (group, dataset, and datatype)
@@ -2430,8 +2271,6 @@ type H5P_iterate_t a = FunPtr (HId_t -> CString -> InOut a -> IO HErr_t)
 --
 -- > herr_t H5Pget_copy_object(hid_t plist_id, unsigned *crt_intmd /*out*/);
 #ccall H5Pget_copy_object, <hid_t> -> Out CUInt -> IO <herr_t>
-
-#if H5_VERSION_GE(1,8,9)
 
 -- TODO: finish
 
@@ -2491,6 +2330,98 @@ type H5P_iterate_t a = FunPtr (HId_t -> CString -> InOut a -> IO HErr_t)
 -- > herr_t H5Pget_mcdt_search_cb(hid_t plist_id, H5O_mcdt_search_cb_t *func, void **op_data);
 #ccall H5Pget_mcdt_search_cb, <hid_t> -> Out (H5O_mcdt_search_cb_t a) -> Out (InOut a) -> IO <herr_t>
 
+
+#if H5_VERSION_GE(1,10,0)
+
+-- > herr_t H5Pencode(hid_t plist_id, void *buf, size_t *nalloc);
+#ccall H5Pencode, <hid_t> ->  In a -> Out <size_t> -> IO <herr_t>
+
+-- > H5_DLL hid_t  H5Pdecode(const void *buf);
+#ccall H5Pdecode, In a -> IO <hid_t>
+
+-- > typedef herr_t (*H5P_prp_encode_func_t)(const void *value, void **buf, size_t *size);
+type H5P_prp_encode_func_t a b = FunPtr (In a -> Out b -> Out CSize)
+
+-- > typedef herr_t (*H5P_prp_decode_func_t)(const void **buf, void *value);
+type H5P_prp_decode_func_t a b = FunPtr (In a -> Out b)
+
+-- > H5_DLL herr_t H5Pset_file_space(hid_t plist_id, H5F_file_space_type_t strategy, hsize_t threshold);
+#ccall H5Pset_file_space, <hid_t> -> H5F_file_space_type_t -> <hsize_t> -> IO <herr_t>
+
+-- > H5_DLL herr_t H5Pget_file_space(hid_t plist_id, H5F_file_space_type_t *strategy, hsize_t *threshold);
+#ccall H5Pget_file_space, <hid_t> -> Out H5F_file_space_type_t -> Out <hsize_t> -> IO <herr_t>
+
+-- > herr_t H5Pset_metadata_read_attempts(hid_t plist_id, unsigned attempts);
+#ccall H5Pget_metadata_read_attempts, <hid_t> -> Out CUInt -> IO <herr_t>
+-- > herr_t H5Pset_object_flush_cb(hid_t plist_id, H5F_flush_cb_t func, void *udata);
+#ccall H5Pset_object_flush_cb , <hid_t> -> H5F_flush_cb_t a -> Out a -> IO <herr_t>
+-- > herr_t H5Pget_object_flush_cb(hid_t plist_id, H5F_flush_cb_t *func, void **udata);
+#ccall H5Pget_object_flush_cb, <hid_t> -> H5F_flush_cb_t a -> Out (Out a) -> IO <herr_t>
+-- > herr_t H5Pset_mdc_log_options(hid_t plist_id, hbool_t is_enabled, const char *location, hbool_t start_on_access);
+#ccall H5Pset_mdc_log_options, <hid_t> -> <hbool_t> -> CString -> <hbool_t> -> IO <herr_t>
+-- > herr_t H5Pget_mdc_log_options(hid_t plist_id, hbool_t *is_enabled, char *location, size_t *location_size, hbool_t *start_on_access);
+#ccall H5Pget_mdc_log_options, <hid_t> -> Out <hbool_t> -> Out CString -> Out <size_t> -> Out <hbool_t> -> IO <herr_t>
+
+-- > herr_t H5Pset_virtual(hid_t dcpl_id, hid_t vspace_id,
+-- >     const char *src_file_name, const char *src_dset_name, hid_t src_space_id);
+#ccall H5Pset_virtual, <hid_t> -> <hid_t> -> CString -> CString -> <hid_t> -> IO <herr_t>
+-- > herr_t H5Pget_virtual_count(hid_t dcpl_id, size_t *count/*out*/);
+#ccall H5Pget_virtual_count, <hid_t> -> Out <size_t> -> IO <herr_t>
+-- > hid_t H5Pget_virtual_vspace(hid_t dcpl_id, size_t index);
+#ccall H5Pget_virtual_vspace, <hid_t> -> <size_t> -> IO <hid_t>
+-- > hid_t H5Pget_virtual_srcspace(hid_t dcpl_id, size_t index);
+#ccall H5Pget_virtual_srcspace, <hid_t> -> <size_t> -> IO <hid_t>
+-- > ssize_t H5Pget_virtual_filename(hid_t dcpl_id, size_t index,
+-- >     char *name/*out*/, size_t size);
+#ccall H5Pget_virtual_filename, <hid_t> -> <size_t> -> Out CString -> <size_t> -> IO <ssize_t>
+-- > ssize_t H5Pget_virtual_dsetname(hid_t dcpl_id, size_t index,
+-- >     char *name/*out*/, size_t size);
+#ccall H5Pget_virtual_dsetname, <hid_t> -> <size_t> -> Out CString -> <size_t> -> IO <ssize_t>
+
+-- > herr_t H5Pset_chunk_opts(hid_t plist_id, unsigned opts);
+#ccall H5Pset_chunk_opts, <hid_t> -> CUInt -> IO <herr_t>
+-- > herr_t H5Pget_chunk_opts(hid_t plist_id, unsigned *opts);
+#ccall H5Pget_chunk_opts, <hid_t> -> Out CUInt -> IO <herr_t>
+
+-- > +H5_DLL herr_t H5Pset_virtual_view(hid_t plist_id, H5D_vds_view_t view);
+#ccall H5Pset_virtual_view, <hid_t> -> H5D_vds_view_t -> IO <herr_t>
+-- > +H5_DLL herr_t H5Pget_virtual_view(hid_t plist_id, H5D_vds_view_t *view);
+#ccall H5Pget_virtual_view, <hid_t> -> Out H5D_vds_view_t -> IO <herr_t>
+-- > +H5_DLL herr_t H5Pset_virtual_printf_gap(hid_t plist_id, hsize_t gap_size);
+#ccall H5Pset_virtual_printf_gap, <hid_t> ->  <hsize_t> -> IO <herr_t>
+-- > +H5_DLL herr_t H5Pget_virtual_printf_gap(hid_t plist_id, hsize_t *gap_size);
+#ccall H5Pget_virtual_printf_gap, <hid_t> -> Out <hsize_t> -> IO <herr_t>
+-- > +H5_DLL herr_t H5Pset_append_flush(hid_t plist_id, unsigned ndims,
+-- > +    const hsize_t boundary[], H5D_append_cb_t func, void *udata);
+#ccall H5Pset_append_flush, <hid_t> -> CUInt -> In <hsize_t> -> H5D_append_cb_t a -> In a -> IO <herr_t>
+-- > +H5_DLL herr_t H5Pget_append_flush(hid_t plist_id, unsigned dims,
+-- > +    hsize_t boundary[], H5D_append_cb_t *func, void **udata);
+#ccall H5Pget_append_flush, <hid_t> -> CUInt -> In <hsize_t> -> H5D_append_cb_t a -> Out (Out a) -> IO <herr_t>
+-- > herr_t H5Pset_efile_prefix(hid_t dapl_id, const char* prefix);
+#ccall H5Pset_efile_prefix, <hid_t> -> CString -> IO <herr_t>
+-- > ssize_t H5Pget_efile_prefix(hid_t dapl_id, char* prefix /*out*/, size_t size);
+#ccall H5Pget_efile_prefix, <hid_t> -> Out CString -> <size_t> -> IO <ssize_t>
+
+#ifdef H5_HAVE_PARALLEL
+
+-- > herr_t H5Pset_coll_metadata_read(hid_t plist_id, hbool_t is_collective);
+#ccall H5Pset_all_coll_metadata_ops, <hid_t> -> <hbool_t> -> IO <herr_t>
+-- > herr_t H5Pget_coll_metadata_read(hid_t plist_id, hbool_t *is_collective);
+#ccall H5Pget_all_coll_metadata_ops, <hid_t> -> Out <hbool_t> -> IO <herr_t>
+-- > herr_t H5Pset_coll_metadata_write(hid_t plist_id, hbool_t is_collective);
+#ccall H5Pset_coll_metadata_write, <hid_t> -> <hbool_t> -> IO <herr_t>
+-- > herr_t H5Pget_coll_metadata_write(hid_t plist_id, hbool_t *is_collective);
+#ccall H5Pget_coll_metadata_write, <hid_t> -> Out <hbool_t> -> IO <herr_t>
+
+#endif
+
+#endif
+
+
+#if H5_VERSION_GE(1,10,2)
+#newtype_const H5D_mpio_no_collective_cause_t, H5D_MPIO_NO_COLLECTIVE_MAX_CAUSE
+#else
+#newtype_const H5D_mpio_no_collective_cause_t, H5D_MPIO_FILTERS
 #endif
 
 #ifndef H5_NO_DEPRECATED_SYMBOLS

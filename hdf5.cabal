@@ -106,6 +106,7 @@ Library
                       , cbits/H5P_inline.c
                       , cbits/H5T_inline.c
 
+  cc-options:           -DH5_USE_110_API
   include-dirs:         include
 
   build-depends:        base >= 3 && < 5,

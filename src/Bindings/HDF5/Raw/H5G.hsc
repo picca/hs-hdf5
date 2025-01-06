@@ -44,10 +44,8 @@ import Foreign.Ptr.Conventions
 -- |Current max. creation order value for group
 #field max_corder,      Int64
 
-#if H5_VERSION_GE(1,8,2)
 -- |Whether group has a file mounted on it
 #field mounted,         <hbool_t>
-#endif
 
 #stoptype
 
@@ -164,12 +162,11 @@ import Foreign.Ptr.Conventions
 -- > herr_t H5Gclose(hid_t group_id);
 #ccall H5Gclose, <hid_t> -> IO <herr_t>
 
-#if H5_VERSION_GE(1,10,0)
 -- > herr_t H5Gflush(hid_t group_id);
 #ccall H5Gflush, <hid_t> -> IO <herr_t>
+
 -- > herr_t H5Grefresh(hid_t group_id);
 #ccall H5Grefresh, <hid_t> -> IO <herr_t>
-#endif
 
 #ifndef H5_NO_DEPRECATED_SYMBOLS
 

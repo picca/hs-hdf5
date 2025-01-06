@@ -242,21 +242,15 @@ data FileInfo = FileInfo
     , sohmMsgsInfo  :: !IH_Info
     } deriving (Eq, Ord, Read, Show)
 
-readFileInfo :: H5F_info_t -> FileInfo
-#if H5Fget_info_vers == 1
-readFileInfo (H5F_info_t a b (H5_ih_info_t c d)) = FileInfo (HSize a) (HSize b) (IH_Info (HSize c) (HSize d))
-#elif H5Fget_info_vers == 2
-readFileInfo (H5F_info_t _superVersion _superSize superExtSize' _freeVersion _metaSize _totSpace _sohmVersion sohmHdrSize' (H5_ih_info_t c d)) = FileInfo (HSize superExtSize') (HSize sohmHdrSize') (IH_Info (HSize c) (HSize d))
-#else
-#error unknown H5Fget_info_vers
-#endif
+readFileInfo1 :: H5F_info_t -> FileInfo
+readFileInfo1 (H5F_info1_t a b (H5_ih_info_t c d)) = FileInfo (HSize a) (HSize b) (IH_Info (HSize c) (HSize d))
 
 getFileInfo :: Object obj => obj -> IO FileInfo
 getFileInfo obj =
-    fmap readFileInfo $
+    fmap readFileInfo1 $
         withOut_ $ \info ->
             withErrorCheck $
-                h5f_get_info (hid obj) info
+                h5f_get_info1 (hid obj) info
 
 getFileIntent :: File -> IO [AccFlags]
 getFileIntent (File file_id) =

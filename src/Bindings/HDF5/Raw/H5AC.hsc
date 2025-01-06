@@ -354,19 +354,15 @@ import Bindings.HDF5.Raw.H5C
 #field dirty_bytes_threshold,   CInt
 #endif
 
-#if H5_VERSION_GE(1,8,6)
 -- |Integer field containing a code indicating the
 -- desired metadata write strategy.  The valid values of this field
 -- are enumerated and discussed below:
 #field metadata_write_strategy, CInt
-#endif
 
 #stoptype
 
 #num H5AC__CURR_CACHE_CONFIG_VERSION
 #num H5AC__MAX_TRACE_FILE_NAME_LEN
-
-#if H5_VERSION_GE(1,8,6)
 
 -- |When 'metadata_write_strategy' is set to this value, only process
 -- zero is allowed to write dirty metadata to disk.  All other
@@ -412,5 +408,3 @@ import Bindings.HDF5.Raw.H5C
 -- To avoid possible messages from the past/future, all caches must
 -- wait until all caches are done before leaving the sync point.
 #num H5AC_METADATA_WRITE_STRATEGY__DISTRIBUTED
-
-#endif

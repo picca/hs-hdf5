@@ -14,30 +14,15 @@ import Bindings.HDF5.Raw.H5
 import Bindings.HDF5.Raw.H5I
 import Foreign.Ptr.Conventions
 
-#if H5_VERSION_GE(1,8,3)
-
 #num H5D_CHUNK_CACHE_NSLOTS_DEFAULT
 #num H5D_CHUNK_CACHE_NBYTES_DEFAULT
 #num H5D_CHUNK_CACHE_W0_DEFAULT
-
-#endif
-
-#if H5_VERSION_GE(1,10,0)
-
--- |Bit flags for the H5Pset_chunk_opts() and H5Pget_chunk_opts()
-#num H5D_CHUNK_DONT_FILTER_PARTIAL_CHUNKS
-
-#endif
-
-#if H5_VERSION_GE(1,8,11)
 
 -- |Property names for H5LTDdirect_chunk_write
 #str H5D_XFER_DIRECT_CHUNK_WRITE_FLAG_NAME
 #str H5D_XFER_DIRECT_CHUNK_WRITE_FILTERS_NAME
 #str H5D_XFER_DIRECT_CHUNK_WRITE_OFFSET_NAME
 #str H5D_XFER_DIRECT_CHUNK_WRITE_DATASIZE_NAME
-
-#endif
 
 -- |Values for the H5D_LAYOUT property
 #newtype H5D_layout_t, Eq
@@ -53,16 +38,7 @@ import Foreign.Ptr.Conventions
 -- |slow and fancy
 #newtype_const H5D_layout_t, H5D_CHUNKED
 
-#if H5_VERSION_GE(1,10,0)
-
--- |actual data is stored in other datasets
-#newtype_const H5D_layout_t, H5D_VIRTUAL
-
-#endif
-
 #num H5D_NLAYOUTS
-
-#if H5_VERSION_GE(1,8,3)
 
 -- |Types of chunk index data structures
 #newtype H5D_chunk_index_t
@@ -70,26 +46,6 @@ import Foreign.Ptr.Conventions
 -- |v1 B-tree index
 #newtype_const H5D_chunk_index_t, H5D_CHUNK_BTREE
 
-#if H5_VERSION_GE(1,10,0)
-
--- |v1 B-tree index (default)
-#newtype_const H5D_chunk_index_t, H5D_CHUNK_IDX_BTREE
--- |Single Chunk index (cur dims[]=max dims[]=chunk dims[]; filtered & non-filtered)
-#newtype_const H5D_chunk_index_t, H5D_CHUNK_IDX_SINGLE
--- |Implicit: No Index (H5D_ALLOC_TIME_EARLY, non-filtered, fixed dims)
-#newtype_const H5D_chunk_index_t, H5D_CHUNK_IDX_NONE
--- |Fixed array (for 0 unlimited dims)
-#newtype_const H5D_chunk_index_t, H5D_CHUNK_IDX_FARRAY
--- |Extensible array (for 1 unlimited dim)
-#newtype_const H5D_chunk_index_t, H5D_CHUNK_IDX_EARRAY
--- |v2 B-tree index (for >1 unlimited dims)
-#newtype_const H5D_chunk_index_t, H5D_CHUNK_IDX_BT2
-
-#num H5D_CHUNK_IDX_NTYPES
-
-#endif
-
-#endif
 
 -- |Values for the space allocation time property
 #newtype H5D_alloc_time_t, Eq
@@ -119,20 +75,6 @@ import Foreign.Ptr.Conventions
 #newtype_const H5D_fill_value_t, H5D_FILL_VALUE_UNDEFINED
 #newtype_const H5D_fill_value_t, H5D_FILL_VALUE_DEFAULT
 #newtype_const H5D_fill_value_t, H5D_FILL_VALUE_USER_DEFINED
-
-#if H5_VERSION_GE(1,10,0)
-
--- | Values for VDS bounds option
-#newtype H5D_vds_view_t, Eq
-#newtype_const H5D_vds_view_t, H5D_VDS_ERROR
-#newtype_const H5D_vds_view_t, H5D_VDS_FIRST_MISSING
-#newtype_const H5D_vds_view_t, H5D_VDS_LAST_AVAILABLE
-
--- |Callback for H5Pset_append_flush() in a dataset access property list
--- > typedef herr_t (*H5D_append_cb_t)(hid_t dataset_id, hsize_t *cur_dims, void *op_data)
-type H5D_append_cb_t a = FunPtr (HId_t -> Out HSize_t -> InOut a -> IO HErr_t)
-
-#endif
 
 -- |Operator function type for 'h5d_iterate'
 --
@@ -165,8 +107,6 @@ type H5D_append_cb_t a = FunPtr (HId_t -> Out HSize_t -> InOut a -> IO HErr_t)
 -- > 				 const hsize_t *point, void *operator_data);
 type H5D_operator_t a b = FunPtr (InOut a -> HId_t -> CUInt -> InArray HSize_t -> InOut b -> IO HErr_t)
 
-#if H5_VERSION_GE(1,8,11)
-
 -- I don't see any documentation for these callback types in the HDF5 distribution
 -- (though I didn't look very hard, it might be there somewhere)
 
@@ -182,8 +122,6 @@ type H5D_scatter_func_t a b = FunPtr (Out (Ptr a) -> Out CSize -> InOut b -> IO 
 -- > typedef herr_t (*H5D_gather_func_t)(const void *dst_buf,
 -- >                                     size_t dst_buf_bytes_used, void *op_data);
 type H5D_gather_func_t a b = FunPtr (InArray a -> CSize -> InOut b -> IO HErr_t)
-
-#endif /* H5_VERSION_GE */
 
 -- |Creates a new dataset named 'name' at 'loc_id', opens the
 -- dataset for access, and associates with that dataset constant
@@ -290,7 +228,6 @@ type H5D_gather_func_t a b = FunPtr (InArray a -> CSize -> InOut b -> IO HErr_t)
 -- > hid_t H5Dget_create_plist(hid_t dset_id);
 #ccall H5Dget_create_plist, <hid_t> -> IO <hid_t>
 
-#if H5_VERSION_GE(1,8,3)
 -- |Returns a copy of the dataset creation property list of the specified
 -- dataset.
 --
@@ -314,7 +251,6 @@ type H5D_gather_func_t a b = FunPtr (InArray a -> CSize -> InOut b -> IO HErr_t)
 --
 -- > hid_t H5Dget_access_plist(hid_t dset_id);
 #ccall H5Dget_access_plist, <hid_t> -> IO <hid_t>
-#endif
 
 -- |Returns the amount of storage that is required for the
 -- dataset. For chunked datasets this is the number of allocated
@@ -474,18 +410,6 @@ type H5D_gather_func_t a b = FunPtr (InArray a -> CSize -> InOut b -> IO HErr_t)
 -- > herr_t H5Dset_extent(hid_t dset_id, const hsize_t size[]);
 #ccall H5Dset_extent, <hid_t> -> InArray <hsize_t> -> IO <herr_t>
 
-#if H5_VERSION_GE(1,10,0)
-
--- > H5_DLL herr_t H5Dflush(hid_t dset_id);
-#ccall H5Dflush, <hid_t> -> IO <herr_t>
-
--- > H5_DLL herr_t H5Drefresh(hid_t dset_id);                                
-#ccall H5Drefresh, <hid_t> -> IO <herr_t>
-
-#endif
-
-#if H5_VERSION_GE(1,8,11)
-
 -- |Scatters data provided by the callback op to the
 -- destination buffer dst_buf, where the dimensions of
 -- dst_buf and the selection to be scattered to are specified
@@ -510,8 +434,6 @@ type H5D_gather_func_t a b = FunPtr (InArray a -> CSize -> InOut b -> IO HErr_t)
 -- >     size_t dst_buf_size, void *dst_buf, H5D_gather_func_t op, void *op_data);
 #ccall H5Dgather, <hid_t> -> InArray a -> <hid_t> -> <size_t> -> OutArray a -> H5D_gather_func_t a b -> InOut b -> IO <herr_t>
 
-#endif /* H5_VERSION_GE */
-
 -- |Prints various information about a dataset.  This function is not to be
 -- documented in the API at this time.
 --
@@ -522,6 +444,34 @@ type H5D_gather_func_t a b = FunPtr (InArray a -> CSize -> InOut b -> IO HErr_t)
 
 #if H5_VERSION_GE(1,10,0)
 
+-- |Bit flags for the H5Pset_chunk_opts() and H5Pget_chunk_opts()
+#num H5D_CHUNK_DONT_FILTER_PARTIAL_CHUNKS
+
+-- |actual data is stored in other datasets
+#newtype_const H5D_layout_t, H5D_VIRTUAL
+
+-- |v1 B-tree index (default)
+#newtype_const H5D_chunk_index_t, H5D_CHUNK_IDX_BTREE
+-- |Single Chunk index (cur dims[]=max dims[]=chunk dims[]; filtered & non-filtered)
+#newtype_const H5D_chunk_index_t, H5D_CHUNK_IDX_SINGLE
+-- |Implicit: No Index (H5D_ALLOC_TIME_EARLY, non-filtered, fixed dims)
+#newtype_const H5D_chunk_index_t, H5D_CHUNK_IDX_NONE
+-- |Fixed array (for 0 unlimited dims)
+#newtype_const H5D_chunk_index_t, H5D_CHUNK_IDX_FARRAY
+-- |Extensible array (for 1 unlimited dim)
+#newtype_const H5D_chunk_index_t, H5D_CHUNK_IDX_EARRAY
+-- |v2 B-tree index (for >1 unlimited dims)
+#newtype_const H5D_chunk_index_t, H5D_CHUNK_IDX_BT2
+
+#num H5D_CHUNK_IDX_NTYPES
+
+-- | Values for VDS bounds option
+#newtype H5D_vds_view_t, Eq
+#newtype_const H5D_vds_view_t, H5D_VDS_ERROR
+#newtype_const H5D_vds_view_t, H5D_VDS_FIRST_MISSING
+#newtype_const H5D_vds_view_t, H5D_VDS_LAST_AVAILABLE
+
+
 -- |Internal API routines
 -- > H5_DLL herr_t H5Dformat_convert(hid_t dset_id);
 #ccall H5Dformat_convert, <hid_t> -> IO <herr_t>
@@ -529,7 +479,18 @@ type H5D_gather_func_t a b = FunPtr (InArray a -> CSize -> InOut b -> IO HErr_t)
 -- > H5_DLL herr_t H5Dget_chunk_index_type(hid_t did, H5D_chunk_index_t *idx_type);
 #ccall H5Dget_chunk_index_type, <hid_t> -> IO H5D_chunk_index_t
 
+-- |Callback for H5Pset_append_flush() in a dataset access property list
+-- > typedef herr_t (*H5D_append_cb_t)(hid_t dataset_id, hsize_t *cur_dims, void *op_data)
+type H5D_append_cb_t a = FunPtr (HId_t -> Out HSize_t -> InOut a -> IO HErr_t)
+
+-- > H5_DLL herr_t H5Dflush(hid_t dset_id);
+#ccall H5Dflush, <hid_t> -> IO <herr_t>
+
+-- > H5_DLL herr_t H5Drefresh(hid_t dset_id);
+#ccall H5Drefresh, <hid_t> -> IO <herr_t>
+
 #endif
+
 
 #ifndef H5_NO_DEPRECATED_SYMBOLS
 

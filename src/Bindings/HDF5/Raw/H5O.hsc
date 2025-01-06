@@ -36,12 +36,8 @@ import Foreign.Ptr.Conventions
 -- |Copy NULL messages (empty space)
 #num H5O_COPY_PRESERVE_NULL_FLAG
 
-#if H5_VERSION_GE(1,8,9)
-
 -- |Merge committed datatypes in dest file
 #num H5O_COPY_MERGE_COMMITTED_DTYPE_FLAG
-
-#endif
 
 -- |All object copying flags (for internal checking)
 #num H5O_COPY_ALL
@@ -115,164 +111,28 @@ import Foreign.Ptr.Conventions
 -- |Number of different object types
 #num H5O_TYPE_NTYPES
 
-#if H5_VERSION_GE(1,8,4)
-
--- |Information struct for object header metadata
--- (for 'h5o_get_info'/ 'h5o_get_info_by_name' / 'h5o_get_info_by_idx')
 #starttype H5O_hdr_info_t
-
--- |Version number of header format in file
 #field version,         CUInt
-
--- |Number of object header messages
 #field nmesgs,          CUInt
-
--- |Number of object header chunks
 #field nchunks,         CUInt
-
--- |Object header status flags
 #field flags,           CUInt
-
--- |Total space for storing object header in file
 #field space.total,     <hsize_t>
-
--- |Space within header for object header metadata information
 #field space.meta,      <hsize_t>
-
--- |Space within header for actual message information
 #field space.mesg,      <hsize_t>
-
--- |Free space within object header
 #field space.free,      <hsize_t>
-
--- |Flags to indicate presence of message type in header
 #field mesg.present,    Word64
-
--- |Flags to indicate message type is shared in header
 #field mesg.shared,     Word64
-
 #stoptype
 
-#endif
-
-#if H5_VERSION_GE(1,11,0)
-
-#starttype H5O_token_t
-
-#field __data,          CUChar
-
+#starttype H5O_stat_t
+#field size,    <hsize_t>
+#field free,    <hsize_t>
+#field nmesgs,  CUInt
+#field nchunks, CUInt
 #stoptype
-
-#endif
-
--- |Information struct for object
--- (for 'h5o_get_info'/ 'h5o_get_info_by_name' / 'h5o_get_info_by_idx')
-#if (H5Fget_info_vers == 1)
-#starttype H5O_info_t
-#else
-#starttype H5O_info2_t
-#endif
-
--- |File number that object is located in
-#field fileno,          CULong
-
-#if (H5Fget_info_vers == 1)
--- |Object address in file
-#field addr,            <haddr_t>
-#endif
-
--- |Token representing the object
-#if H5_VERSION_GE(1,11,0)
-#field token,            <H5O_token_t>
-#endif
-
--- |Basic object type (group, dataset, etc.)
-#field type,            <H5O_type_t>
-
--- |Reference count of object
-#field rc,              CUInt
-
--- |Access time
-#field atime,           <time_t>
-
--- |Modification time
-#field mtime,           <time_t>
-
--- |Change time
-#field ctime,           <time_t>
-
--- |Birth time
-#field btime,           <time_t>
-
--- |# of attributes attached to object
-#field num_attrs,       <hsize_t>
-
-#if H5_VERSION_GE(1,8,4)
-
-#if (H5Fget_info_vers == 1)
--- |Object header information
-#field hdr,             <H5O_hdr_info_t>
-#endif
-
-#else
-
-#if (H5Fget_info_vers == 1)
--- |Version number of header format in file
-#field hdr.version,      CUInt
-
--- |Number of object header messages
-#field hdr.nmesgs,       CUInt
-
--- |Number of object header chunks
-#field hdr.nchunks,      CUInt
-
--- |Object header status flags
-#field hdr.flags,        CUInt
-
--- |Total space for storing object header in file
-#field hdr.space.total,  <hsize_t>
-
--- |Space within header for object header metadata information
-#field hdr.space.meta,   <hsize_t>
-
--- |Space within header for actual message information
-#field hdr.space.mesg,   <hsize_t>
-
--- |Free space within object header
-#field hdr.space.free,   <hsize_t>
-
--- |Flags to indicate presence of message type in header
-#field hdr.mesg.present, Word64
-
--- |Flags to indicate message type is shared in header
-#field hdr.mesg.shared,  Word64
-
-#endif
-
-#endif
-
-#if (H5Fget_info_vers == 1)
--- |v1/v2 B-tree & local/fractal heap for groups, B-tree for chunked datasets
-#field meta_size.obj,   <H5_ih_info_t>
-
--- |v2 B-tree & heap for attributes
-#field meta_size.attr,  <H5_ih_info_t>
-
-#endif
-
-#stoptype
-
 
 -- |Typedef for message creation indexes
 #newtype H5O_msg_crt_idx_t, Eq, Ord, Read
-
-#if (H5Fget_info_vers == 1)
--- |Prototype for 'h5o_visit' / 'h5o_visit_by_name' operator
-type H5O_iterate_t a = FunPtr (HId_t -> CString -> In H5O_info_t -> InOut a -> IO HErr_t)
-#else
--- |Prototype for 'h5o_visit' / 'h5o_visit_by_name' operator
-type H5O_iterate2_t a = FunPtr (HId_t -> CString -> In H5O_info2_t -> InOut a -> IO HErr_t)
-#endif
 
 #newtype H5O_mcdt_search_ret_t
 
@@ -359,43 +219,10 @@ type H5O_mcdt_search_cb_t a = FunPtr (InOut a -> IO H5O_mcdt_search_ret_t)
 -- >     H5_index_t idx_type, H5_iter_order_t order, hsize_t n, hid_t lapl_id);
 #ccall H5Oopen_by_idx, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> <hid_t> -> IO <hid_t>
 
-#if H5_VERSION_GE(1,8,5)
-
 -- |Determine if a linked-to object exists
 --
 -- > htri_t H5Oexists_by_name(hid_t loc_id, const char *name, hid_t lapl_id);
 #ccall H5Oexists_by_name, <hid_t> -> CString -> <hid_t> -> IO <htri_t>
-
-#endif
-
--- |Retrieve information about an object.
---
--- Returns non-negative on success, negative on failure.
---
--- > herr_t H5Oget_info(hid_t loc_id, H5O_info_t *oinfo);
-#if (H5Fget_info_vers == 1)
-#ccall H5Oget_info, <hid_t> -> Out <H5O_info_t> -> IO <herr_t>
-#else
-#ccall H5Oget_info, <hid_t> -> Out <H5O_info2_t> -> IO <herr_t>
-#endif
-
--- |Retrieve information about an object.
---
--- Returns non-negative on success, negative on failure.
---
--- > herr_t H5Oget_info_by_name(hid_t loc_id, const char *name, H5O_info_t *oinfo,
--- >     hid_t lapl_id);
-#ccall H5Oget_info_by_name, <hid_t> -> CString -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
-
--- |Retrieve information about an object, according to the order
--- of an index.
---
--- Returns non-negative on success, negative on failure.
---
--- > herr_t H5Oget_info_by_idx(hid_t loc_id, const char *group_name,
--- >     H5_index_t idx_type, H5_iter_order_t order, hsize_t n, H5O_info_t *oinfo,
--- >     hid_t lapl_id);
-#ccall H5Oget_info_by_idx, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
 
 -- |Creates a hard link from 'new_name' to the object specified
 -- by 'obj_id' using properties defined in the Link Creation
@@ -642,42 +469,72 @@ type H5O_mcdt_search_cb_t a = FunPtr (InOut a -> IO H5O_mcdt_search_ret_t)
 
 #if H5_VERSION_GE(1,10,0)
 
--- > herr_t H5Oflush(hid_t obj_id);
-#ccall H5Oflush, <hid_t> -> IO <herr_t>
-
--- > herr_t H5Orefresh(hid_t oid);
-#ccall H5Orefresh, <hid_t> -> IO <herr_t>
-
--- > herr_t H5Odisable_mdc_flushes(hid_t object_id);
-#ccall H5Odisable_mdc_flushes, <hid_t> -> IO <herr_t>
-
--- > herr_t H5Oenable_mdc_flushes(hid_t object_id);
-#ccall H5Oenable_mdc_flushes, <hid_t> -> IO <herr_t>
-
--- > herr_t H5Oare_mdc_flushes_disabled(hid_t object_id, hbool_t *are_disabled);
 #ccall H5Oare_mdc_flushes_disabled, <hid_t> -> Out hbool_t -> IO <herr_t>
+#ccall H5Odisable_mdc_flushes, <hid_t> -> IO <herr_t>
+#ccall H5Oenable_mdc_flushes, <hid_t> -> IO <herr_t>
+#ccall H5Oflush, <hid_t> -> IO <herr_t>
+#ccall H5Orefresh, <hid_t> -> IO <herr_t>
 
 #endif
 
-#ifndef H5_NO_DEPRECATED_SYMBOLS
+#if H5_VERSION_GE(1,10,3)
 
--- * Deprecated types
-
--- |A struct that's part of the 'h5g_stat_t' routine (deprecated)
-#starttype H5O_stat_t
-
--- |Total size of object header in file
-#field size,    <hsize_t>
-
--- |Free space within object header
-#field free,    <hsize_t>
-
--- |Number of object header messages
-#field nmesgs,  CUInt
-
--- |Number of object header chunks
-#field nchunks, CUInt
-
+#starttype H5O_info1_t
+#field fileno,           CULong
+#field addr,             <haddr_t>
+#field type,             <H5O_type_t>
+#field rc,               CUInt
+#field atime,            <time_t>
+#field mtime,            <time_t>
+#field ctime,            <time_t>
+#field btime,            <time_t>
+#field num_attrs,        <hsize_t>
+#field hdr,              <H5O_hdr_info_t>
+#field meta_size.obj,    <H5_ih_info_t>
+#field meta_size.attr,   <H5_ih_info_t>
 #stoptype
 
-#endif /* H5_NO_DEPRECATED_SYMBOLS */
+type H5O_iterate1_t a = FunPtr (HId_t -> CString -> In H5O_info1_t -> InOut a -> IO HErr_t)
+
+#ccall H5Oget_info1, <hid_t> -> Out <H5O_info1_t> -> IO <herr_t>
+#ccall H5Oget_info_by_idx1, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info1_t> -> <hid_t> -> IO <herr_t>
+#ccall H5Oget_info_by_name1, <hid_t> -> CString -> Out <H5O_info1_t> -> <hid_t> -> IO <herr_t>
+
+type H5O_iterate2_t a = FunPtr (HId_t -> CString -> In H5O_info2_t -> InOut a -> IO HErr_t)
+
+#num H5O_INFO_BASIC
+#num H5O_INFO_TIME
+#num H5O_INFO_NUM_ATTRS
+#num H5O_INFO_HDR
+#num H5O_INFO_META_SIZE
+#num H5O_INFO_ALL
+
+#ccall H5Oget_info2, <hid_t> -> Out <H5O_info1_t> -> CUInt -> IO <herr_t>
+#ccall H5Oget_info_by_idx2, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info_t> -> CUInt -> <hid_t> -> IO <herr_t>
+#ccall H5Oget_info_by_name2, <hid_t> -> CString -> Out <H5O_info_t> -> CUInt -> <hid_t> -> IO <herr_t>
+
+#endif
+
+#if H5_VERSION_GE(1,12,0)
+
+#starttype H5O_token_t
+#field __data,          CUChar
+#stoptype
+
+#starttype H5O_info2_t
+#field fileno,          CULong
+#field token,           <H5O_token_t>
+#field type,            <H5O_type_t>
+#field rc,              CUInt
+#field atime,           <time_t>
+#field mtime,           <time_t>
+#field ctime,           <time_t>
+#field btime,           <time_t>
+#field num_attrs,       <hsize_t>
+#stoptype
+
+#ccall H5Oget_info3, <hid_t> -> Out <H5O_info2_t> -> CUInt -> IO <herr_t>
+#ccall H5Oget_info_by_idx3, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info2_t> -> CUInt -> <hid_t> -> IO <herr_t>
+#ccall H5Oget_info_by_name3, <hid_t> -> CString -> Out <H5O_info2_t> -> CUInt -> <hid_t> -> IO <herr_t>
+
+#endif

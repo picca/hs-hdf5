@@ -45,29 +45,9 @@ import Foreign.Ptr.Conventions
 -- |create non-existing files
 #num H5F_ACC_CREAT
 
-#if H5_VERSION_GE(1,10,0)
-
--- |indicate that this file is open for writing in a
--- single-writer/multi-reader (SWMR) scenario.  Note that the
--- process(es) opening the file for reading must open the file with
--- RDONLY access, and use the special "SWMR_READ" access flag.
-#num H5F_ACC_SWMR_WRITE
-
--- |indicate that this file is open for reading in a
--- single-writer/multi-reader (SWMR) scenario.  Note that the
--- process(es) opening the file for SWMR reading must also open the
--- file with the RDONLY flag.  */
-#num H5F_ACC_SWMR_READ
-
-#endif
-
-#if H5_VERSION_GE(1,8,3)
-
 -- |Value passed to 'h5p_set_elink_acc_flags' to cause flags to be taken from the
 -- parent file.
 #num H5F_ACC_DEFAULT
-
-#endif
 
 -- ** Flags for 'h5f_get_obj_count' and 'h5f_get_obj_ids' calls
 
@@ -131,8 +111,6 @@ import Foreign.Ptr.Conventions
 #newtype_const H5F_close_degree_t, H5F_CLOSE_STRONG
 
 
-#if H5_VERSION_GE(1,8,4)
-
 -- |Types of allocation requests. The values larger than 'h5fd_MEM_DEFAULT'
 -- should not change other than adding new types to the end. These numbers
 -- might appear in files.
@@ -160,23 +138,7 @@ import Foreign.Ptr.Conventions
 -- |Sentinel value - must be last
 #num H5FD_MEM_NTYPES
 
-#endif
 
-#if H5_VERSION_GE(1,10,0)
-
--- |Free space section information
-#starttype H5F_sect_info_t
-
--- |Address of free space section
-#field addr, <haddr_t>
-
--- |Size of free space section
-#field size, <hsize_t>
-
-#stoptype
-
-#endif
- 
 -- |Library's file format versions
 #newtype H5F_libver_t
 
@@ -185,54 +147,6 @@ import Foreign.Ptr.Conventions
 
 -- |Use the latest possible format available for storing objects
 #newtype_const H5F_libver_t, H5F_LIBVER_LATEST
-
-#if H5_VERSION_GE(1,8,6) && H5_VERSION_LE(1,8,16)
-
--- |Use version 1.8 format for storing objects
-#newtype_const H5F_libver_t, H5F_LIBVER_18
-
-#endif
-
-#if H5_VERSION_GE(1,10,0)
-
--- |File space handling strategy
-#newtype H5F_file_space_type_t, Eq
-
--- |Default (or current) free space strategy setting
-#newtype_const H5F_file_space_type_t, H5F_FILE_SPACE_DEFAULT
-
--- |Persistent free space managers, aggregators, virtual file driver
-#newtype_const H5F_file_space_type_t, H5F_FILE_SPACE_ALL_PERSIST
-
--- |Non-persistent free space managers, aggregators, virtual file driver
--- This is the library default
-#newtype_const H5F_file_space_type_t, H5F_FILE_SPACE_ALL
-
--- |Aggregators, Virtual file driver
-#newtype_const H5F_file_space_type_t, H5F_FILE_SPACE_AGGR_VFD
-
--- |Virtual file driver
-#newtype_const H5F_file_space_type_t, H5F_FILE_SPACE_VFD
-
-#num H5F_FILE_SPACE_NTYPES
-
--- | Data structure to report the collection of read retries for metadata items with checksum
--- Used by public routine H5Fget_metadata_read_retry_info()
--- TODO check the retries static array
-#num H5F_NUM_METADATA_READ_RETRY_TYPES
-
-#starttype H5F_retry_info_t
-#field nbins, CUInt
-#field retries, Ptr Word32
-#stoptype 
-
--- |Callback for H5Pset_object_flush_cb() in a file access property list
--- > typedef herr_t (*H5F_flush_cb_t)(hid_t object_id, void *udata);
-
-type H5F_flush_cb_t a = FunPtr (HId_t -> InOut a -> IO HErr_t)
-
-#endif
-
 
 -- * Public functions
 
@@ -406,8 +320,6 @@ type H5F_flush_cb_t a = FunPtr (HId_t -> InOut a -> IO HErr_t)
 -- > herr_t H5Fget_filesize(hid_t file_id, hsize_t *size);
 #ccall H5Fget_filesize, <hid_t> -> Out <hsize_t> -> IO <herr_t>
 
-#if H5_VERSION_GE(1,8,9)
-
 -- |If a buffer is provided (via the buf_ptr argument) and is
 -- big enough (size in buf_len argument), load *buf_ptr with
 -- an image of the open file whose ID is provided in the
@@ -443,8 +355,6 @@ type H5F_flush_cb_t a = FunPtr (HId_t -> InOut a -> IO HErr_t)
 --
 -- > ssize_t H5Fget_file_image(hid_t file_id, void * buf_ptr, size_t buf_len);
 #ccall H5Fget_file_image, <hid_t> -> InArray a -> <size_t> -> IO <ssize_t>
-
-#endif
 
 -- |Retrieves the current automatic cache resize configuration
 -- from the metadata cache, and return it in 'config_ptr'.
@@ -533,26 +443,6 @@ type H5F_flush_cb_t a = FunPtr (HId_t -> InOut a -> IO HErr_t)
 --
 -- Returns non-negative on success, negative on failure
 --
-#if H5_VERSION_GE(1,10,0)
-
-#if H5Fget_info_vers == 2
--- > herr_t H5Fget_info2(hid_t obj_id, H5F_info2_t *bh_info);
-#ccall H5Fget_info2, <hid_t> -> Out H5F_info_t -> IO <herr_t>
-#endif
-
--- > herr_t H5Fget_metadata_read_retry_info(hid_t file_id, H5F_retry_info_t *info);
-#ccall H5Fget_metadata_read_retry_info, <hid_t> -> Out H5F_retry_info_t -> IO <herr_t>
-
--- > herr_t H5Fstart_swmr_write(hid_t file_id);
-#ccall H5Fstart_swmr_write, <hid_t> -> IO <herr_t>
-
--- > ssize_t H5Fget_free_sections(hid_t file_id, H5F_mem_t type,
--- >    size_t nsects, H5F_sect_info_t *sect_info/*out*/);
-#ccall H5Fget_free_sections, <hid_t> -> <H5F_mem_t> -> <size_t> -> Out H5F_sect_info_t -> IO <ssize_t>
-
-#endif
-
-#if H5_VERSION_GE(1,8,7)
 -- |Releases the external file cache associated with the
 -- provided file, potentially closing any cached files
 -- unless they are held open from somewhere else.
@@ -561,30 +451,8 @@ type H5F_flush_cb_t a = FunPtr (HId_t -> InOut a -> IO HErr_t)
 --
 -- > herr_t H5Fclear_elink_file_cache(hid_t file_id);
 #ccall H5Fclear_elink_file_cache, <hid_t> -> IO <herr_t>
-#endif
 
-#if H5_VERSION_GE(1,10,0)
-
--- > herr_t H5Fstart_mdc_logging(hid_t file_id);
-#ccall H5Fstart_mdc_logging, <hid_t> -> IO <herr_t>
-
--- > herr_t H5Fstop_mdc_logging(hid_t file_id);
-#ccall H5Fstop_mdc_logging, <hid_t> -> IO <herr_t>
-
--- > herr_t H5Fget_mdc_logging_status(hid_t file_id,
--- >                                  /*OUT*/ hbool_t *is_enabled,
--- >                                  /*OUT*/ hbool_t *is_currently_logging);
-#ccall H5Fget_mdc_logging_status, <hid_t> -> Out hbool_t -> Out hbool_t -> IO <herr_t>
-
--- > herr_t H5Fformat_convert(hid_t fid);
-#ccall H5Fformat_convert, <hid_t> -> IO <herr_t>
-
--- > herr_t H5Fget_info1(hid_t obj_id, H5F_info1_t *bh_info);
-#ccall H5Fget_info1, <hid_t> -> Out H5F_info1_t -> IO <herr_t>
-
-#endif
-
-#if H5_VERSION_GE(1,8,9) && H5_HAVE_PARALLEL
+#if H5_HAVE_PARALLEL
 
 -- |Sets the atomicity mode
 --
@@ -600,96 +468,92 @@ type H5F_flush_cb_t a = FunPtr (HId_t -> InOut a -> IO HErr_t)
 
 #endif
 
+#if H5_VERSION_GE(1,10,0)
 
-#if H5_VERSION_GE(1,10,0) && !H5_NO_DEPRECATED_SYMBOLS
+-- |indicate that this file is open for writing in a
+-- single-writer/multi-reader (SWMR) scenario.  Note that the
+-- process(es) opening the file for reading must open the file with
+-- RDONLY access, and use the special "SWMR_READ" access flag.
+#num H5F_ACC_SWMR_WRITE
 
--- |Current "global" information about file
--- (just size info currently)
+-- |indicate that this file is open for reading in a
+-- single-writer/multi-reader (SWMR) scenario.  Note that the
+-- process(es) opening the file for SWMR reading must also open the
+-- file with the RDONLY flag.  */
+#num H5F_ACC_SWMR_READ
+
 #starttype H5F_info1_t
-
--- |Superblock extension size
 #field super_ext_size,  <hsize_t>
-
--- |Shared object header message header size
 #field sohm.hdr_size,   <hsize_t>
-
--- |Shared object header message index & heap size
 #field sohm.msgs_info,  <H5_ih_info_t>
 #stoptype
 
-#endif
-
--- #if (H5_VERSION_GE(1,10,0) && (H5Fget_info_vers == 1)) || H5_VERSION_LE(1,8,18)
-#if H5Fget_info_vers == 1
-
--- |Current "global" information about file
--- (just size info currently)
-#starttype H5F_info_t
-
--- |Superblock extension size
-#field super_ext_size,  <hsize_t>
-
--- |Shared object header message header size
-#field sohm.hdr_size,   <hsize_t>
-
--- |Shared object header message index & heap size
-#field sohm.msgs_info,  <H5_ih_info_t>
- 
-#stoptype
-
-#elif H5Fget_info_vers == 2
-
--- |Current "global" information about file
--- (just size info currently)
-#starttype H5F_info_t
-
--- |Superblock version
+#starttype H5F_info2_t
 #field super.version,  CUInt
-
--- |Superblock size
 #field super.super_size, <hsize_t>
-
--- |Superblock extension size
 #field super.super_ext_size, <hsize_t>
-
--- |Version # of file free space management
 #field free.version, CUInt
-
--- |Free space manager metadata size
 #field free.meta_size, <hsize_t>
-
--- |Amount of free space in the file
 #field free.tot_space, <hsize_t>
-
--- |Version # of shared object header info
 #field sohm.version, CUInt
-
--- |Shared object header message header size
 #field sohm.hdr_size, <hsize_t>
-
--- |Shared object header message index & heap size
 #field sohm.msgs_info, <H5_ih_info_t>
+#stoptype
+
+type H5F_info_t = H5F_info1_t
+
+-- |Free space section information
+#starttype H5F_sect_info_t
+
+-- |Address of free space section
+#field addr, <haddr_t>
+
+-- |Size of free space section
+#field size, <hsize_t>
 
 #stoptype
 
-type H5F_info2_t = H5F_info_t
+-- |File space handling strategy
+#newtype H5F_file_space_type_t, Eq
 
-#else
+-- |Default (or current) free space strategy setting
+#newtype_const H5F_file_space_type_t, H5F_FILE_SPACE_DEFAULT
 
-#error unknown H5Fget_info_vers
+-- |Persistent free space managers, aggregators, virtual file driver
+#newtype_const H5F_file_space_type_t, H5F_FILE_SPACE_ALL_PERSIST
+
+-- |Non-persistent free space managers, aggregators, virtual file driver
+-- This is the library default
+#newtype_const H5F_file_space_type_t, H5F_FILE_SPACE_ALL
+
+-- |Aggregators, Virtual file driver
+#newtype_const H5F_file_space_type_t, H5F_FILE_SPACE_AGGR_VFD
+
+-- |Virtual file driver
+#newtype_const H5F_file_space_type_t, H5F_FILE_SPACE_VFD
+
+#num H5F_FILE_SPACE_NTYPES
+
+-- | Data structure to report the collection of read retries for metadata items with checksum
+-- Used by public routine H5Fget_metadata_read_retry_info()
+-- TODO check the retries static array
+#num H5F_NUM_METADATA_READ_RETRY_TYPES
+
+#starttype H5F_retry_info_t
+#field nbins, CUInt
+#field retries, Ptr Word32
+#stoptype
+
+type H5F_flush_cb_t a = FunPtr (HId_t -> InOut a -> IO HErr_t)
+
+#ccall H5Fformat_convert, <hid_t> -> IO <herr_t>
+#ccall H5Fget_info1, <hid_t> -> Out H5F_info1_t -> IO <herr_t>
+#ccall H5Fget_info2, <hid_t> -> Out H5F_info2_t -> IO <herr_t>
+#ccall H5Fget_mdc_logging_status, <hid_t> -> Out hbool_t -> Out hbool_t -> IO <herr_t>
+#ccall H5Fget_metadata_read_retry_info, <hid_t> -> Out H5F_retry_info_t -> IO <herr_t>
+#ccall H5Fget_free_sections, <hid_t> -> <H5F_mem_t> -> <size_t> -> Out H5F_sect_info_t -> IO <ssize_t>
+#ccall H5Fstart_mdc_logging, <hid_t> -> IO <herr_t>
+#ccall H5Fstart_swmr_write, <hid_t> -> IO <herr_t>
+#ccall H5Fstop_mdc_logging, <hid_t> -> IO <herr_t>
 
 #endif
-
-
-#if H5_VERSION_GE(1,8,10)
-#if (H5Fget_info_vers == 1)
-foreign import ccall unsafe "H5Fget_info1" h5f_get_info
-#else
-foreign import ccall unsafe "H5Fget_info2" h5f_get_info
-#endif
-#else
-foreign import ccall unsafe "H5Fget_info" h5f_get_info
-#endif
-  :: HId_t -> Out H5F_info_t -> IO HErr_t
-
-

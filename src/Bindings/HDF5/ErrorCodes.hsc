@@ -103,9 +103,7 @@ rawMajorErrCodes =
     , (Just RS,         h5e_RS)
     , (Just Heap,       h5e_HEAP)
     , (Just OHDR,       h5e_OHDR)
-#if !H5_VERSION_GE(1,8,14)
     , (Just Atom,       h5e_ATOM)
-#endif
     , (Just Attr,       h5e_ATTR)
     , (Just IO,         h5e_IO)
     , (Just SList,      h5e_SLIST)
@@ -432,9 +430,7 @@ rawMinorErrCodes =
     , (Just BadFile,            h5e_BADFILE)
     , (Just Truncated,          h5e_TRUNCATED)
     , (Just Mount,              h5e_MOUNT)
-#if !H5_VERSION_GE(1,8,14)
     , (Just BadAtom,            h5e_BADATOM)
-#endif
     , (Just BadGroup,           h5e_BADGROUP)
     , (Just CantRegister,       h5e_CANTREGISTER)
     , (Just CantInc,            h5e_CANTINC)
