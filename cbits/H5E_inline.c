@@ -11,9 +11,7 @@ BC_INLINE_(H5E_STORAGE,             hid_t)
 BC_INLINE_(H5E_FILE,                hid_t)
 BC_INLINE_(H5E_SOHM,                hid_t)
 BC_INLINE_(H5E_SYM,                 hid_t)
-#if H5_VERSION_GE(1,8,11)
 BC_INLINE_(H5E_PLUGIN,              hid_t)
-#endif /* H5_VERSION_GE */
 BC_INLINE_(H5E_VFL,                 hid_t)
 BC_INLINE_(H5E_INTERNAL,            hid_t)
 BC_INLINE_(H5E_BTREE,               hid_t)
@@ -26,9 +24,6 @@ BC_INLINE_(H5E_DATATYPE,            hid_t)
 BC_INLINE_(H5E_RS,                  hid_t)
 BC_INLINE_(H5E_HEAP,                hid_t)
 BC_INLINE_(H5E_OHDR,                hid_t)
-#if !H5_VERSION_GE(1,8,14)
-BC_INLINE_(H5E_ATOM,                hid_t)
-#endif
 BC_INLINE_(H5E_ATTR,                hid_t)
 BC_INLINE_(H5E_NONE_MAJOR,          hid_t)
 BC_INLINE_(H5E_IO,                  hid_t)
@@ -74,9 +69,7 @@ BC_INLINE_(H5E_CANTGET,             hid_t)
 BC_INLINE_(H5E_CANTSET,             hid_t)
 BC_INLINE_(H5E_DUPCLASS,            hid_t)
 
-#if H5_VERSION_GE(1,8,9)
 BC_INLINE_(H5E_SETDISALLOWED,       hid_t)
-#endif
 
 BC_INLINE_(H5E_CANTMERGE,           hid_t)
 BC_INLINE_(H5E_CANTREVIVE,          hid_t)
@@ -108,9 +101,7 @@ BC_INLINE_(H5E_PATH,                hid_t)
 
 BC_INLINE_(H5E_NONE_MINOR,          hid_t)
 
-#if H5_VERSION_GE(1,8,11)
 BC_INLINE_(H5E_OPENERROR,           hid_t)
-#endif
 
 BC_INLINE_(H5E_FILEEXISTS,          hid_t)
 BC_INLINE_(H5E_FILEOPEN,            hid_t)
@@ -121,10 +112,6 @@ BC_INLINE_(H5E_NOTHDF5,             hid_t)
 BC_INLINE_(H5E_BADFILE,             hid_t)
 BC_INLINE_(H5E_TRUNCATED,           hid_t)
 BC_INLINE_(H5E_MOUNT,               hid_t)
-
-#if !H5_VERSION_GE(1,8,14)
-BC_INLINE_(H5E_BADATOM,             hid_t)
-#endif
 BC_INLINE_(H5E_BADGROUP,            hid_t)
 BC_INLINE_(H5E_CANTREGISTER,        hid_t)
 BC_INLINE_(H5E_CANTINC,             hid_t)
