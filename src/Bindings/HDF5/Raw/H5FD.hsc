@@ -500,8 +500,6 @@ data H5FD_file_image_callbacks_t = H5FD_file_image_callbacks_t
 -- > herr_t H5FDtruncate(H5FD_t *file, hid_t dxpl_id, hbool_t closing);
 #ccall H5FDtruncate, In <H5FD_t> -> <hid_t> -> <hbool_t> -> IO <herr_t>
 
-#if H5_VERSION_GE(1,10,0)
-
 -- |Map "extensible array" header blocks to 'ohdr' type file memory, since its
 -- a fair amount of work to add a new kind of file memory and they are similar
 -- enough to object headers and probably too minor to deserve their own type.
@@ -545,5 +543,3 @@ data H5FD_file_image_callbacks_t = H5FD_file_image_callbacks_t
 
 -- > haddr_t H5FDget_eof(H5FD_t *file, H5FD_mem_t type);
 #ccall H5FDget_eof, In <H5FD_t> -> <H5FD_mem_t> -> IO <haddr_t>
-
-#endif

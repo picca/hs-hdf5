@@ -64,15 +64,7 @@ import Foreign.Ptr.Conventions
 -- TODO: I think HId_t should be parameterised over the element type and
 -- possibly also dimensionality of the dataset
 -- |Type of atoms to return to users
-#if H5_VERSION_GE(1,10,0)
-
 newtype HId_t = HId_t Int64 deriving (Storable, Eq, Ord)
-
-#else
-
-newtype HId_t = HId_t Int32 deriving (Storable, Eq, Ord)
-
-#endif
 
 instance Show HId_t where
     showsPrec p (HId_t x) = showParen (p>10)

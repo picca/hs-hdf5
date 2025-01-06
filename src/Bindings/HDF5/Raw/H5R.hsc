@@ -91,13 +91,10 @@ newtype #mangle_tycon   "hdset_reg_ref_t"
 -- Returns a valid ID on success, negative on failure
 --
 -- > hid_t H5Rdereference(hid_t dataset, H5R_type_t ref_type, const void *ref);
-#if H5_VERSION_GE(1,10,0)
 #ccall H5Rdereference1, <hid_t> -> <H5R_type_t> -> In a -> IO <hid_t>
+
 -- > hid_t H5Rdereference2(hid_t obj_id, hid_t oapl_id, H5R_type_t ref_type, const void *ref);
 #ccall H5Rdereference2,  <hid_t> -> <hid_t> -> <H5R_type_t> -> In a -> IO <hid_t>
-#else
-#ccall H5Rdereference, <hid_t> -> <H5R_type_t> -> In a -> IO <hid_t>
-#endif
 
 -- |Retrieves a dataspace with the region pointed to selected.
 -- Given a reference to some object, creates a copy of the dataset pointed

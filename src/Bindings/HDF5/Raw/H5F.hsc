@@ -468,8 +468,6 @@ import Foreign.Ptr.Conventions
 
 #endif
 
-#if H5_VERSION_GE(1,10,0)
-
 -- |indicate that this file is open for writing in a
 -- single-writer/multi-reader (SWMR) scenario.  Note that the
 -- process(es) opening the file for reading must open the file with
@@ -555,5 +553,3 @@ type H5F_flush_cb_t a = FunPtr (HId_t -> InOut a -> IO HErr_t)
 #ccall H5Fstart_mdc_logging, <hid_t> -> IO <herr_t>
 #ccall H5Fstart_swmr_write, <hid_t> -> IO <herr_t>
 #ccall H5Fstop_mdc_logging, <hid_t> -> IO <herr_t>
-
-#endif

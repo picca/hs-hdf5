@@ -99,12 +99,8 @@ h5_SIZEOF_HSIZE_T, h5_SIZEOF_HSSIZE_T :: CSize
 h5_SIZEOF_HSIZE_T  = #const H5_SIZEOF_HSIZE_T
 h5_SIZEOF_HSSIZE_T = #const H5_SIZEOF_HSSIZE_T
 
-#if H5_VERSION_GE(1,10,0)
-
 hSIZE_UNDEF :: HSize_t
 hSIZE_UNDEF = #const HSIZE_UNDEF
-
-#endif
 
 #newtype haddr_t, Eq, Ord, Num, Bits, Enum, Bounded, Real, Integral
 

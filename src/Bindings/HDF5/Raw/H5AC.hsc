@@ -348,11 +348,7 @@ import Bindings.HDF5.Raw.H5C
 -- This value MUST be consistant across all processes accessing the
 -- file.  This field is ignored unless HDF5 has been compiled for
 -- parallel.
-#if H5_VERSION_GE(1,10,0)
 #field dirty_bytes_threshold,   <size_t>
-#else
-#field dirty_bytes_threshold,   CInt
-#endif
 
 -- |Integer field containing a code indicating the
 -- desired metadata write strategy.  The valid values of this field

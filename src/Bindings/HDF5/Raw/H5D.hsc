@@ -442,8 +442,6 @@ type H5D_gather_func_t a b = FunPtr (InArray a -> CSize -> InOut b -> IO HErr_t)
 -- > herr_t H5Ddebug(hid_t dset_id);
 #ccall H5Ddebug, <hid_t> -> IO <herr_t>
 
-#if H5_VERSION_GE(1,10,0)
-
 -- |Bit flags for the H5Pset_chunk_opts() and H5Pget_chunk_opts()
 #num H5D_CHUNK_DONT_FILTER_PARTIAL_CHUNKS
 
@@ -488,9 +486,6 @@ type H5D_append_cb_t a = FunPtr (HId_t -> Out HSize_t -> InOut a -> IO HErr_t)
 
 -- > H5_DLL herr_t H5Drefresh(hid_t dset_id);
 #ccall H5Drefresh, <hid_t> -> IO <herr_t>
-
-#endif
-
 
 #ifndef H5_NO_DEPRECATED_SYMBOLS
 

@@ -2331,8 +2331,6 @@ type H5P_iterate_t a = FunPtr (HId_t -> CString -> InOut a -> IO HErr_t)
 #ccall H5Pget_mcdt_search_cb, <hid_t> -> Out (H5O_mcdt_search_cb_t a) -> Out (InOut a) -> IO <herr_t>
 
 
-#if H5_VERSION_GE(1,10,0)
-
 -- > herr_t H5Pencode(hid_t plist_id, void *buf, size_t *nalloc);
 #ccall H5Pencode, <hid_t> ->  In a -> Out <size_t> -> IO <herr_t>
 
@@ -2414,9 +2412,6 @@ type H5P_prp_decode_func_t a b = FunPtr (In a -> Out b)
 #ccall H5Pget_coll_metadata_write, <hid_t> -> Out <hbool_t> -> IO <herr_t>
 
 #endif
-
-#endif
-
 
 #if H5_VERSION_GE(1,10,2)
 #newtype_const H5D_mpio_no_collective_cause_t, H5D_MPIO_NO_COLLECTIVE_MAX_CAUSE

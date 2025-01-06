@@ -696,14 +696,11 @@ h5t_MIPS_F64 = h5t_IEEE_F64BE
 -- > hid_t H5Tdecode(const void *buf);
 #ccall H5Tdecode, InArray a -> IO <hid_t>
 
-#if H5_VERSION_GE(1,10,0)
-
 -- > herr_t H5Tflush(hid_t type_id);
 #ccall H5Tflush, <hid_t> -> IO <herr_t>
+
 -- > herr_t H5Trefresh(hid_t type_id);
 #ccall H5Trefresh, <hid_t> -> IO <herr_t>
-
-#endif
 
 -- * Operations defined on compound datatypes
 
