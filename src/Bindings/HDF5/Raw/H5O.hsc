@@ -421,7 +421,7 @@ type H5O_mcdt_search_cb_t a = FunPtr (InOut a -> IO H5O_mcdt_search_ret_t)
 --
 -- > herr_t H5Ovisit(hid_t obj_id, H5_index_t idx_type, H5_iter_order_t order,
 -- >     H5O_iterate_t op, void *op_data);
-#ccall H5Ovisit, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5O_iterate_t a -> InOut a -> IO <herr_t>
+#cinline H5Ovisit, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5O_iterate_t a -> InOut a -> IO <herr_t>
 
 -- |Recursively visit an object and all the objects reachable
 -- from it.  If the starting object is a group, all the objects
@@ -449,7 +449,7 @@ type H5O_mcdt_search_cb_t a = FunPtr (InOut a -> IO H5O_mcdt_search_ret_t)
 -- > herr_t H5Ovisit_by_name(hid_t loc_id, const char *obj_name,
 -- >     H5_index_t idx_type, H5_iter_order_t order, H5O_iterate_t op,
 -- >     void *op_data, hid_t lapl_id);
-#ccall H5Ovisit_by_name, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> H5O_iterate_t a -> InOut a -> <hid_t> -> IO <herr_t>
+#cinline H5Ovisit_by_name, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> H5O_iterate_t a -> InOut a -> <hid_t> -> IO <herr_t>
 
 -- |Close an open file object.
 --
@@ -469,8 +469,6 @@ type H5O_mcdt_search_cb_t a = FunPtr (InOut a -> IO H5O_mcdt_search_ret_t)
 #ccall H5Oflush, <hid_t> -> IO <herr_t>
 #ccall H5Orefresh, <hid_t> -> IO <herr_t>
 
-#if H5_VERSION_GE(1,10,3)
-
 #starttype H5O_info_t
 #field fileno,           CULong
 #field addr,             <haddr_t>
@@ -485,6 +483,12 @@ type H5O_mcdt_search_cb_t a = FunPtr (InOut a -> IO H5O_mcdt_search_ret_t)
 #field meta_size.obj,    <H5_ih_info_t>
 #field meta_size.attr,   <H5_ih_info_t>
 #stoptype
+
+#cinline H5Oget_info, <hid_t> -> Out <H5O_info_t> -> IO <herr_t>
+#cinline H5Oget_info_by_idx, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
+#cinline H5Oget_info_by_name, <hid_t> -> CString -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
+
+#if H5_VERSION_GE(1,10,3)
 
 #ccall H5Oget_info1, <hid_t> -> Out <H5O_info_t> -> IO <herr_t>
 #ccall H5Oget_info_by_idx1, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
