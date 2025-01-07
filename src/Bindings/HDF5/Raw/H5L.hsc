@@ -66,6 +66,25 @@ h5l_MAX_LINK_NAME_LEN = #const H5L_MAX_LINK_NAME_LEN
 -- |Link ids at or above this value are \"user-defined\" link types.
 #newtype_const H5L_type_t, H5L_TYPE_UD_MIN
 
+#starttype H5L_info_t
+#field type,                <H5L_type_t>
+#field corder_valid,        <hbool_t>
+#field corder,              Int64
+#field cset,                <H5T_cset_t>
+#union_field u.address,     <haddr_t>
+#union_field u.val_size,    <size_t>
+#stoptype
+
+#ccall H5Lget_info, <hid_t> -> CString -> Out <H5L_info_t> -> <hid_t> -> IO <herr_t>
+#ccall H5Lget_info_by_idx, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5L_info_t> -> <hid_t> -> IO <herr_t>
+
+type H5L_iterate_t a = FunPtr (HId_t -> CString -> In H5L_info_t -> InOut a -> IO HErr_t)
+
+#ccall H5Literate, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate_t a -> InOut a -> IO <herr_t>
+#ccall H5Literate_by_name, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate_t a -> InOut a -> <hid_t> -> IO <herr_t>
+#ccall H5Lvisit, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate_t a -> InOut a -> IO <herr_t>
+#ccall H5Lvisit_by_name, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate_t a -> InOut a -> <hid_t> -> IO <herr_t>
+
 -- |Information struct for link (for 'h5l_get_info' / 'h5l_get_info_by_idx')
 
 #if H5_VERSION_GE(1,12,0)
