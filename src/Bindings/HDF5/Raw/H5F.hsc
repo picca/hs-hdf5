@@ -498,7 +498,7 @@ import Foreign.Ptr.Conventions
 #field sohm.msgs_info, <H5_ih_info_t>
 #stoptype
 
-type H5F_info_t = H5F_info1_t
+type H5F_info_t = H5F_info2_t
 
 -- |Free space section information
 #starttype H5F_sect_info_t
@@ -543,6 +543,8 @@ type H5F_info_t = H5F_info1_t
 #stoptype
 
 type H5F_flush_cb_t a = FunPtr (HId_t -> InOut a -> IO HErr_t)
+
+#cinline H5Fget_info, <hid_t> -> Out H5F_info_t -> IO <herr_t>
 
 #ccall H5Fformat_convert, <hid_t> -> IO <herr_t>
 #ccall H5Fget_info1, <hid_t> -> Out H5F_info1_t -> IO <herr_t>

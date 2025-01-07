@@ -99,6 +99,7 @@ Library
 
   c-sources:            cbits/H5_inline.c
                       , cbits/H5E_inline.c
+                      , cbits/H5F_inline.c
                       , cbits/H5FD_inline.c
                       , cbits/H5FD_inline.c
                       , cbits/H5FDmpi_inline.c

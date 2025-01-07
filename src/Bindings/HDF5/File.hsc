@@ -242,7 +242,7 @@ data FileInfo = FileInfo
     , sohmMsgsInfo  :: !IH_Info
     } deriving (Eq, Ord, Read, Show)
 
-readFileInfo1 :: H5F_info_t -> FileInfo
+readFileInfo1 :: H5F_info1_t -> FileInfo
 readFileInfo1 (H5F_info1_t a b (H5_ih_info_t c d)) = FileInfo (HSize a) (HSize b) (IH_Info (HSize c) (HSize d))
 
 getFileInfo :: Object obj => obj -> IO FileInfo
