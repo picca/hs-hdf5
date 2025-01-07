@@ -14,4 +14,4 @@ jobs:
       - name: install hdf5
         run: sudo apt-get install -y libhdf5-dev libffi-dev
       - name: build and test with cabal
-        run: cabal test
+        run: cabal test --enable-tests
