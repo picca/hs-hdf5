@@ -167,13 +167,13 @@ data LinkInfo = LinkInfo
 
 #if H5_VERSION_GE(1,12,0)
 
-readLinkInfo :: H5L_info1_t -> LinkInfo
+readLinkInfo :: H5L_info_t -> LinkInfo
 readLinkInfo i  = LinkInfo
-    { linkType          = linkTypeFromCode (h5l_info1_t'type i)
-    , linkCOrderValid   = hboolToBool (h5l_info1_t'corder_valid i)
-    , linkCOrder        = h5l_info1_t'corder i
-    , linkCSet          = cSetFromCode (h5l_info1_t'cset i)
-    , linkValSize       = h5l_info1_t'u'val_size i
+    { linkType          = linkTypeFromCode (h5l_info_t'type i)
+    , linkCOrderValid   = hboolToBool (h5l_info_t'corder_valid i)
+    , linkCOrder        = h5l_info_t'corder i
+    , linkCSet          = cSetFromCode (h5l_info_t'cset i)
+    , linkValSize       = h5l_info_t'u'val_size i
     }
 
 getLinkInfo :: Location loc => loc -> BS.ByteString -> Maybe LAPL -> IO LinkInfo
@@ -191,7 +191,7 @@ getSymLinkVal loc name mb_lapl =
         info <- withOut_ $ \info ->
             withErrorCheck_ $
                     h5l_get_info1 (hid loc) cname info lapl
-        let n = h5l_info1_t'u'val_size info
+        let n = h5l_info_t'u'val_size info
 
         buf <- mallocBytes (fromIntegral n)
 

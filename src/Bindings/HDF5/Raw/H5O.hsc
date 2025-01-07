@@ -421,11 +421,7 @@ type H5O_mcdt_search_cb_t a = FunPtr (InOut a -> IO H5O_mcdt_search_ret_t)
 --
 -- > herr_t H5Ovisit(hid_t obj_id, H5_index_t idx_type, H5_iter_order_t order,
 -- >     H5O_iterate_t op, void *op_data);
-#if (H5Fget_info_vers == 1)
 #ccall H5Ovisit, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5O_iterate_t a -> InOut a -> IO <herr_t>
-#else
-#ccall H5Ovisit, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5O_iterate2_t a -> InOut a -> IO <herr_t>
-#endif
 
 -- |Recursively visit an object and all the objects reachable
 -- from it.  If the starting object is a group, all the objects
@@ -511,21 +507,7 @@ type H5O_iterate_t a = FunPtr (HId_t -> CString -> In H5O_info_t -> InOut a -> I
 
 #if H5_VERSION_GE(1,12,0)
 
-#starttype H5O_info1_t
-#field fileno,           CULong
-#field addr,             <haddr_t>
-#field type,             <H5O_type_t>
-#field rc,               CUInt
-#field atime,            <time_t>
-#field mtime,            <time_t>
-#field ctime,            <time_t>
-#field btime,            <time_t>
-#field num_attrs,        <hsize_t>
-#field hdr,              <H5O_hdr_info_t>
-#field meta_size.obj,    <H5_ih_info_t>
-#field meta_size.attr,   <H5_ih_info_t>
-#stoptype
-
+type H5O_info1_t = H5O_info_t
 type H5O_iterate1_t a = FunPtr (HId_t -> CString -> In H5O_info1_t -> InOut a -> IO HErr_t)
 
 #starttype H5O_token_t
