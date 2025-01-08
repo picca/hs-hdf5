@@ -469,7 +469,28 @@ type H5O_mcdt_search_cb_t a = FunPtr (InOut a -> IO H5O_mcdt_search_ret_t)
 #ccall H5Oflush, <hid_t> -> IO <herr_t>
 #ccall H5Orefresh, <hid_t> -> IO <herr_t>
 
-#starttype H5O_info_t
+#if H5_VERSION_GE(1,10,3)
+
+#num H5O_INFO_BASIC
+#num H5O_INFO_TIME
+#num H5O_INFO_NUM_ATTRS
+#num H5O_INFO_HDR
+#num H5O_INFO_META_SIZE
+#num H5O_INFO_ALL
+
+#endif
+
+--------------------------
+-- Compatibility Macros --
+--------------------------
+
+-- H5O_info_t
+
+#if defined(H5O_info_t_vers)
+
+# if H5O_info_t_vers == 1
+
+#starttype H5O_info1_t
 #field fileno,           CULong
 #field addr,             <haddr_t>
 #field type,             <H5O_type_t>
@@ -484,35 +505,9 @@ type H5O_mcdt_search_cb_t a = FunPtr (InOut a -> IO H5O_mcdt_search_ret_t)
 #field meta_size.attr,   <H5_ih_info_t>
 #stoptype
 
-#cinline H5Oget_info, <hid_t> -> Out <H5O_info_t> -> IO <herr_t>
-#cinline H5Oget_info_by_idx, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
-#cinline H5Oget_info_by_name, <hid_t> -> CString -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
+type H5O_info_t = H5O_info1_t
 
-#if H5_VERSION_GE(1,10,3)
-
-#ccall H5Oget_info1, <hid_t> -> Out <H5O_info_t> -> IO <herr_t>
-#ccall H5Oget_info_by_idx1, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
-#ccall H5Oget_info_by_name1, <hid_t> -> CString -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
-
-#num H5O_INFO_BASIC
-#num H5O_INFO_TIME
-#num H5O_INFO_NUM_ATTRS
-#num H5O_INFO_HDR
-#num H5O_INFO_META_SIZE
-#num H5O_INFO_ALL
-
-#ccall H5Oget_info2, <hid_t> -> Out <H5O_info_t> -> CUInt -> IO <herr_t>
-#ccall H5Oget_info_by_idx2, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info_t> -> CUInt -> <hid_t> -> IO <herr_t>
-#ccall H5Oget_info_by_name2, <hid_t> -> CString -> Out <H5O_info_t> -> CUInt -> <hid_t> -> IO <herr_t>
-
-type H5O_iterate_t a = FunPtr (HId_t -> CString -> In H5O_info_t -> InOut a -> IO HErr_t)
-
-#endif
-
-#if H5_VERSION_GE(1,12,0)
-
-type H5O_info1_t = H5O_info_t
-type H5O_iterate1_t a = FunPtr (HId_t -> CString -> In H5O_info1_t -> InOut a -> IO HErr_t)
+# elif H5O_info_t_vers == 2
 
 #starttype H5O_token_t
 #field __data,          CUChar
@@ -530,10 +525,95 @@ type H5O_iterate1_t a = FunPtr (HId_t -> CString -> In H5O_info1_t -> InOut a ->
 #field num_attrs,       <hsize_t>
 #stoptype
 
-#ccall H5Oget_info3, <hid_t> -> Out <H5O_info2_t> -> CUInt -> IO <herr_t>
-#ccall H5Oget_info_by_idx3, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info2_t> -> CUInt -> <hid_t> -> IO <herr_t>
-#ccall H5Oget_info_by_name3, <hid_t> -> CString -> Out <H5O_info2_t> -> CUInt -> <hid_t> -> IO <herr_t>
+type H5O_info_t = H5O_info2_t
 
+# endif
+
+#else
+
+#starttype H5O_info_t
+#field fileno,           CULong
+#field addr,             <haddr_t>
+#field type,             <H5O_type_t>
+#field rc,               CUInt
+#field atime,            <time_t>
+#field mtime,            <time_t>
+#field ctime,            <time_t>
+#field btime,            <time_t>
+#field num_attrs,        <hsize_t>
+#field hdr,              <H5O_hdr_info_t>
+#field meta_size.obj,    <H5_ih_info_t>
+#field meta_size.attr,   <H5_ih_info_t>
+#stoptype
+
+#endif
+
+-- H5O_iterate_t
+
+#if defined(H5O_iterate_t_vers)
+# if H5O_iterate_t_vers == 1
+type H5O_iterate_t  a = FunPtr (HId_t -> CString -> In H5O_info_t ->  InOut a -> IO HErr_t)
+type H5O_iterate1_t a = FunPtr (HId_t -> CString -> In H5O_info1_t -> InOut a -> IO HErr_t)
+# elif H5O_iterate_t_vers == 2
+type H5O_iterate_t  a = FunPtr (HId_t -> CString -> In H5O_info_t  -> InOut a -> IO HErr_t)
 type H5O_iterate2_t a = FunPtr (HId_t -> CString -> In H5O_info2_t -> InOut a -> IO HErr_t)
+# else
+#  error TODO
+# endif
+#else
+type H5O_iterate_t a = FunPtr (HId_t -> CString -> In H5O_info_t -> InOut a -> IO HErr_t)
+#endif
 
+-- functions
+
+#if defined(H5Oget_info_vers)
+# if H5Oget_info_vers == 1
+#  cinline H5Oget_info,  <hid_t> -> Out <H5O_info_t> -> IO <herr_t>
+#  ccall   H5Oget_info1, <hid_t> -> Out <H5O_info1_t> -> IO <herr_t>
+# elif H5Oget_info_vers == 2
+#  cinline H5Oget_info,  <hid_t> -> Out <H5O_info_t> -> CUInt -> IO <herr_t>
+#  ccall   H5Oget_info2, <hid_t> -> Out <H5O_info1_t> -> CUInt -> IO <herr_t>
+# elif H5Oget_info_vers == 3
+#  cinline H5Oget_info, <hid_t> -> Out <H5O_info_t> -> CUInt -> IO <herr_t>
+#  ccall   H5Oget_info, <hid_t> -> Out <H5O_info2_t> -> CUInt -> IO <herr_t>
+# else
+#  error TODO
+# endif
+#else
+# ccall H5Oget_info, <hid_t> -> Out <H5O_info_t> -> IO <herr_t>
+#endif
+
+
+#if defined(H5Oget_info_by_idx_vers)
+# if H5Oget_info_by_idx_vers == 1
+#  cinline H5Oget_info_by_idx,  <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
+#  ccall   H5Oget_info_by_idx1, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
+# elif H5Oget_info_by_idx_vers == 2
+#  cinline H5Oget_info_by_idx,  <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info_t> -> CUInt -> <hid_t> -> IO <herr_t>
+#  ccall   H5Oget_info_by_idx2, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info_t> -> CUInt -> <hid_t> -> IO <herr_t>
+# elif H5Oget_info_by_idx_vers == 3
+#  cinline H5Oget_info_by_idx,  <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info_t>  -> CUInt -> <hid_t> -> IO <herr_t>
+#  ccall   H5Oget_info_by_idx3, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info2_t> -> CUInt -> <hid_t> -> IO <herr_t>
+# else
+#  error TODO
+# endif
+#else
+# ccall H5Oget_info_by_idx, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
+#endif
+
+#if defined(H5Oget_info_by_name_vers)
+# if H5Oget_info_by_name_vers == 1
+#  cinline H5Oget_info_by_name,  <hid_t> -> CString -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
+#  ccall   H5Oget_info_by_name1, <hid_t> -> CString -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
+# elif H5Oget_info_by_name_vers == 2
+#  cinline H5Oget_info_by_name,  <hid_t> -> CString -> Out <H5O_info_t> -> CUInt -> <hid_t> -> IO <herr_t>
+#  ccall   H5Oget_info_by_name2, <hid_t> -> CString -> Out <H5O_info_t> -> CUInt -> <hid_t> -> IO <herr_t>
+# elif H5Oget_info_by_name_vers == 3
+#  cinline H5Oget_info_by_name,  <hid_t> -> CString -> Out <H5O_info_t>  -> CUInt -> <hid_t> -> IO <herr_t>
+#  ccall   H5Oget_info_by_name3, <hid_t> -> CString -> Out <H5O_info2_t> -> CUInt -> <hid_t> -> IO <herr_t>
+# else
+#  error TODO
+# endif
+#else
+# ccall H5Oget_info_by_name, <hid_t> -> CString -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
 #endif

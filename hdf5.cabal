@@ -104,6 +104,7 @@ Library
                       , cbits/H5FD_inline.c
                       , cbits/H5FDmpi_inline.c
                       , cbits/H5G_inline.c
+                      , cbits/H5L_inline.c
                       , cbits/H5O_inline.c
                       , cbits/H5P_inline.c
                       , cbits/H5R_inline.c
