@@ -1,5 +1,5 @@
 name:                   hdf5
-version:                1.10.0
+version:                1.8.14
 stability:              provisional
 
 cabal-version:          >= 1.10
@@ -110,7 +110,7 @@ Library
                       , cbits/H5S_inline.c
                       , cbits/H5T_inline.c
 
-  cc-options:           -DH5_USE_110_API
+  cc-options:           -DH5_USE_18_API
   include-dirs:         include
 
   build-depends:        base >= 3 && < 5,
