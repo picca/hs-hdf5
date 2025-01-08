@@ -106,6 +106,7 @@ Library
                       , cbits/H5G_inline.c
                       , cbits/H5O_inline.c
                       , cbits/H5P_inline.c
+                      , cbits/H5R_inline.c
                       , cbits/H5T_inline.c
 
   cc-options:           -DH5_USE_110_API

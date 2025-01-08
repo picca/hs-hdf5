@@ -96,6 +96,8 @@ newtype #mangle_tycon   "hdset_reg_ref_t"
 -- > hid_t H5Rdereference2(hid_t obj_id, hid_t oapl_id, H5R_type_t ref_type, const void *ref);
 #ccall H5Rdereference2,  <hid_t> -> <hid_t> -> <H5R_type_t> -> In a -> IO <hid_t>
 
+#cinline H5Rdereference, <hid_t> -> <hid_t> -> <H5R_type_t> -> In a -> IO <hid_t>
+
 -- |Retrieves a dataspace with the region pointed to selected.
 -- Given a reference to some object, creates a copy of the dataset pointed
 -- to's dataspace and defines a selection in the copy which is the region
