@@ -172,10 +172,6 @@ import Foreign.Ptr.Conventions
 -- Returns non-negative on success, negative on failure.
 --
 #cinline H5Sencode,  <hid_t> -> OutArray CChar -> InOut <size_t> -> IO <herr_t>
-#if H5_VERSION_GE(1,12,0)
-# ccall H5Sencode2, <hid_t> -> OutArray CChar -> InOut <size_t> -> <hid_t> -> IO <herr_t>
-# ccall H5Sencode1, <hid_t> -> OutArray CChar -> InOut <size_t> -> IO <herr_t>
-#endif
 
 -- |Decode a binary object description of dataspace and
 -- return a new object handle.
@@ -424,15 +420,11 @@ import Foreign.Ptr.Conventions
 -- > htri_t H5Sselect_valid(hid_t spaceid);
 #ccall H5Sselect_valid, <hid_t> -> IO <htri_t>
 
-#if H5_VERSION_GE(1,10,0)
-
 -- > htri_t H5Sis_regular_hyperslab(hid_t spaceid);
 #ccall H5Sis_regular_hyperslab, <hid_t> -> IO <htri_t>
 -- > htri_t H5Sget_regular_hyperslab(hid_t spaceid, hsize_t start[],
 -- >     hsize_t stride[], hsize_t count[], hsize_t block[]);
 #ccall H5Sget_regular_hyperslab, <hid_t> -> InArray <hsize_t> -> InArray <hsize_t> -> InArray <hsize_t> -> InArray <hsize_t> -> IO <htri_t>
-
-#endif
 
 -- |Get the number of hyperslab blocks in current hyperslab selection
 --
