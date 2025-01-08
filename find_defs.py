@@ -65,7 +65,7 @@ def print_prefix_results(prefix, results):
 
 
 if __name__ == '__main__':
-    names = find_deflines('~/git/haskell/bindings-hdf5')
+    names = find_deflines('.')
     if len(sys.argv) > 1:
         prefixes = sys.argv[1:]
     else:
