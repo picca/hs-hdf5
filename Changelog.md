@@ -1,3 +1,9 @@
+1.10.0 [2025-01-XX]
+------
+
+* build with H5_USE_110_API
+* should compilation with hdf5 from 1.10.0 to 1.14.5
+
 1.8.13 [2024-09-18]
 ------
 
