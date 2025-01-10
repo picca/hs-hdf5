@@ -77,27 +77,6 @@ newtype #mangle_tycon   "hdset_reg_ref_t"
 -- >        H5R_type_t ref_type, hid_t space_id);
 #ccall H5Rcreate, Out a -> <hid_t> -> CString -> <H5R_type_t> -> <hid_t> -> IO <herr_t>
 
--- |Opens the HDF5 object referenced.  Given a reference to some object,
--- open that object and return an ID for that object.
---
--- Parameters:
---
--- [@ id       :: 'HId_t'      @]   Dataset reference object is in or location ID of object that the dataset is located within.
---
--- [@ ref_type :: 'H5R_type_t' @]   Type of reference to create
---
--- [@ ref      :: 'In' a       @]   Reference to open.
---
--- Returns a valid ID on success, negative on failure
---
--- > hid_t H5Rdereference(hid_t dataset, H5R_type_t ref_type, const void *ref);
-#ccall H5Rdereference1, <hid_t> -> <H5R_type_t> -> In a -> IO <hid_t>
-
--- > hid_t H5Rdereference2(hid_t obj_id, hid_t oapl_id, H5R_type_t ref_type, const void *ref);
-#ccall H5Rdereference2,  <hid_t> -> <hid_t> -> <H5R_type_t> -> In a -> IO <hid_t>
-
-#cinline H5Rdereference, <hid_t> -> <hid_t> -> <H5R_type_t> -> In a -> IO <hid_t>
-
 -- |Retrieves a dataspace with the region pointed to selected.
 -- Given a reference to some object, creates a copy of the dataset pointed
 -- to's dataspace and defines a selection in the copy which is the region
@@ -158,6 +137,48 @@ newtype #mangle_tycon   "hdset_reg_ref_t"
 -- >     char *name/*out*/, size_t size);
 #ccall H5Rget_name, <hid_t> -> <H5R_type_t> -> In a -> OutArray CChar -> <size_t> -> IO <ssize_t>
 
+--------------------------
+-- Compatibility Macros --
+--------------------------
+
+-- H5Rdereference
+
+-- |Opens the HDF5 object referenced.  Given a reference to some object,
+-- open that object and return an ID for that object.
+--
+-- Parameters:
+--
+-- [@ id       :: 'HId_t'      @]   Dataset reference object is in or location ID of object that the dataset is located within.
+--
+-- [@ ref_type :: 'H5R_type_t' @]   Type of reference to create
+--
+-- [@ ref      :: 'In' a       @]   Reference to open.
+--
+-- Returns a valid ID on success, negative on failure
+--
+-- > hid_t H5Rdereference(hid_t dataset, H5R_type_t ref_type, const void *ref);
+
+-- > hid_t H5Rdereference2(hid_t obj_id, hid_t oapl_id, H5R_type_t ref_type, const void *ref);
+
+#if defined(H5Rdereference_vers)
+# ccall H5Rdereference1, <hid_t> -> <H5R_type_t> -> In a -> IO <hid_t>
+# ccall H5Rdereference2, <hid_t> -> <hid_t> -> <H5R_type_t> -> In a -> IO <hid_t>
+# if H5Rdereference_vers == 1
+h5r_dereference :: HId_t -> H5R_type_t -> In a -> IO HId_t
+h5r_dereference = h5r_dereference1
+# elif H5Rdereference_vers == 2
+h5r_dereference :: HId_t -> HId_t -> H5R_type_t -> In a -> IO HId_t
+h5r_dereference = h5r_dereference2
+# else
+#  error TODO
+# endif
+#else
+# ccall H5Rdereference, <hid_t> -> <H5R_type_t> -> In a -> IO <hid_t>
+#endif
+
+------------------------
+-- Deprecated symbols --
+------------------------
 
 #ifndef H5_NO_DEPRECATED_SYMBOLS
 

@@ -396,61 +396,6 @@ type H5O_mcdt_search_cb_t a = FunPtr (InOut a -> IO H5O_mcdt_search_ret_t)
 -- >     char *comment, size_t bufsize, hid_t lapl_id);
 #ccall H5Oget_comment_by_name, <hid_t> -> CString -> OutArray CChar -> <size_t> -> <hid_t> -> IO <ssize_t>
 
--- |Recursively visit an object and all the objects reachable
--- from it.  If the starting object is a group, all the objects
--- linked to from that group will be visited.  Links within
--- each group are visited according to the order within the
--- specified index (unless the specified index does not exist for
--- a particular group, then the "name" index is used).
---
--- NOTE: Soft links and user-defined links are ignored during
--- this operation.
---
--- NOTE: Each _object_ reachable from the initial group will only
--- be visited once.  If multiple hard links point to the same
--- object, the first link to the object's path (according to the
--- iteration index and iteration order given) will be used to in
--- the callback about the object.
---
--- On success, returns the return value of the first operator that
--- returns non-zero, or zero if all members were processed with no
--- operator returning non-zero.
---
--- Returns negative if something goes wrong within the library, or
--- the negative value returned by one of the operators.
---
--- > herr_t H5Ovisit(hid_t obj_id, H5_index_t idx_type, H5_iter_order_t order,
--- >     H5O_iterate_t op, void *op_data);
-#cinline H5Ovisit, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5O_iterate_t a -> InOut a -> IO <herr_t>
-
--- |Recursively visit an object and all the objects reachable
--- from it.  If the starting object is a group, all the objects
--- linked to from that group will be visited.  Links within
--- each group are visited according to the order within the
--- specified index (unless the specified index does not exist for
--- a particular group, then the "name" index is used).
---
--- NOTE: Soft links and user-defined links are ignored during
--- this operation.
---
--- NOTE: Each _object_ reachable from the initial group will only
--- be visited once.  If multiple hard links point to the same
--- object, the first link to the object's path (according to the
--- iteration index and iteration order given) will be used to in
--- the callback about the object.
---
--- On success, returns the return value of the first operator that
--- returns non-zero, or zero if all members were processed with no
--- operator returning non-zero.
---
--- Returns negative if something goes wrong within the library, or
--- the negative value returned by one of the operators.
---
--- > herr_t H5Ovisit_by_name(hid_t loc_id, const char *obj_name,
--- >     H5_index_t idx_type, H5_iter_order_t order, H5O_iterate_t op,
--- >     void *op_data, hid_t lapl_id);
-#cinline H5Ovisit_by_name, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> H5O_iterate_t a -> InOut a -> <hid_t> -> IO <herr_t>
-
 -- |Close an open file object.
 --
 -- This is the companion to 'h5o_open'. It is used to close any
@@ -488,8 +433,6 @@ type H5O_mcdt_search_cb_t a = FunPtr (InOut a -> IO H5O_mcdt_search_ret_t)
 
 #if defined(H5O_info_t_vers)
 
-# if H5O_info_t_vers == 1
-
 #starttype H5O_info1_t
 #field fileno,           CULong
 #field addr,             <haddr_t>
@@ -504,10 +447,6 @@ type H5O_mcdt_search_cb_t a = FunPtr (InOut a -> IO H5O_mcdt_search_ret_t)
 #field meta_size.obj,    <H5_ih_info_t>
 #field meta_size.attr,   <H5_ih_info_t>
 #stoptype
-
-type H5O_info_t = H5O_info1_t
-
-# elif H5O_info_t_vers == 2
 
 #starttype H5O_token_t
 #field __data,          CUChar
@@ -525,7 +464,13 @@ type H5O_info_t = H5O_info1_t
 #field num_attrs,       <hsize_t>
 #stoptype
 
-type H5O_info_t = H5O_info2_t
+# if H5O_info_t_vers == 1
+
+#synonym_t H5O_info_t, <H5O_info1_t>
+
+# elif H5O_info_t_vers == 2
+
+#synonym_t H5O_info_t, <H5O_info2_t>
 
 # endif
 
@@ -551,12 +496,12 @@ type H5O_info_t = H5O_info2_t
 -- H5O_iterate_t
 
 #if defined(H5O_iterate_t_vers)
+type H5O_iterate1_t a = FunPtr (HId_t -> CString -> In H5O_info1_t -> InOut a -> IO HErr_t)
+type H5O_iterate2_t a = FunPtr (HId_t -> CString -> In H5O_info2_t -> InOut a -> IO HErr_t)
 # if H5O_iterate_t_vers == 1
 type H5O_iterate_t  a = FunPtr (HId_t -> CString -> In H5O_info_t ->  InOut a -> IO HErr_t)
-type H5O_iterate1_t a = FunPtr (HId_t -> CString -> In H5O_info1_t -> InOut a -> IO HErr_t)
 # elif H5O_iterate_t_vers == 2
 type H5O_iterate_t  a = FunPtr (HId_t -> CString -> In H5O_info_t  -> InOut a -> IO HErr_t)
-type H5O_iterate2_t a = FunPtr (HId_t -> CString -> In H5O_info2_t -> InOut a -> IO HErr_t)
 # else
 #  error TODO
 # endif
@@ -564,18 +509,21 @@ type H5O_iterate2_t a = FunPtr (HId_t -> CString -> In H5O_info2_t -> InOut a ->
 type H5O_iterate_t a = FunPtr (HId_t -> CString -> In H5O_info_t -> InOut a -> IO HErr_t)
 #endif
 
--- functions
+-- H5Oget_info
 
 #if defined(H5Oget_info_vers)
+# ccall H5Oget_info1, <hid_t> -> Out <H5O_info1_t> -> IO <herr_t>
+# ccall H5Oget_info2, <hid_t> -> Out <H5O_info1_t> -> CUInt -> IO <herr_t>
 # if H5Oget_info_vers == 1
-#  cinline H5Oget_info,  <hid_t> -> Out <H5O_info_t> -> IO <herr_t>
-#  ccall   H5Oget_info1, <hid_t> -> Out <H5O_info1_t> -> IO <herr_t>
+h5o_get_info :: HId_t -> Out H5O_info_t -> IO HErr_t
+h5o_get_info = h5o_get_info1
 # elif H5Oget_info_vers == 2
-#  cinline H5Oget_info,  <hid_t> -> Out <H5O_info_t> -> CUInt -> IO <herr_t>
-#  ccall   H5Oget_info2, <hid_t> -> Out <H5O_info1_t> -> CUInt -> IO <herr_t>
+h5o_get_info :: HId_t -> Out H5O_info_t -> CUInt -> IO HErr_t
+h5o_get_info = h5o_get_info2
 # elif H5Oget_info_vers == 3
-#  cinline H5Oget_info, <hid_t> -> Out <H5O_info_t> -> CUInt -> IO <herr_t>
 #  ccall   H5Oget_info, <hid_t> -> Out <H5O_info2_t> -> CUInt -> IO <herr_t>
+h5o_get_info :: HId_t -> Out H5O_info_t -> CUInt -> IO HErr_t
+h5o_get_info = h5o_get_info3
 # else
 #  error TODO
 # endif
@@ -584,16 +532,21 @@ type H5O_iterate_t a = FunPtr (HId_t -> CString -> In H5O_info_t -> InOut a -> I
 #endif
 
 
+-- H5Oget_info_by_idx
+
 #if defined(H5Oget_info_by_idx_vers)
+# ccall H5Oget_info_by_idx1, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
+# ccall H5Oget_info_by_idx2, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info_t> -> CUInt -> <hid_t> -> IO <herr_t>
 # if H5Oget_info_by_idx_vers == 1
-#  cinline H5Oget_info_by_idx,  <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
-#  ccall   H5Oget_info_by_idx1, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
+h5o_get_info_by_idx :: HId_t -> CString -> H5_index_t -> H5_iter_order_t -> HSize_t -> Out H5O_info_t -> HId_t -> IO HErr_t
+h5o_get_info_by_idx = h5o_get_info_by_idx1
 # elif H5Oget_info_by_idx_vers == 2
-#  cinline H5Oget_info_by_idx,  <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info_t> -> CUInt -> <hid_t> -> IO <herr_t>
-#  ccall   H5Oget_info_by_idx2, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info_t> -> CUInt -> <hid_t> -> IO <herr_t>
+h5o_get_info_by_idx :: HId_t -> CString -> H5_index_t -> H5_iter_order_t -> HSize_t -> Out H5O_info_t -> CUInt ->HId_t -> IO HErr_t
+h5o_get_info_by_idx = h5o_get_info_by_idx2
 # elif H5Oget_info_by_idx_vers == 3
-#  cinline H5Oget_info_by_idx,  <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info_t>  -> CUInt -> <hid_t> -> IO <herr_t>
 #  ccall   H5Oget_info_by_idx3, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info2_t> -> CUInt -> <hid_t> -> IO <herr_t>
+h5o_get_info_by_idx :: HId_t -> CString -> H5_index_t -> H5_iter_order_t -> HSize_t -> Out H5O_info_t -> CUInt -> HId_t -> IO HErr_t
+h5o_get_info_by_idx = h5o_get_info_by_idx3
 # else
 #  error TODO
 # endif
@@ -601,19 +554,121 @@ type H5O_iterate_t a = FunPtr (HId_t -> CString -> In H5O_info_t -> InOut a -> I
 # ccall H5Oget_info_by_idx, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
 #endif
 
+-- H5Oget_info_by_name
+
 #if defined(H5Oget_info_by_name_vers)
+# ccall H5Oget_info_by_name1, <hid_t> -> CString -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
+# ccall H5Oget_info_by_name2, <hid_t> -> CString -> Out <H5O_info_t> -> CUInt -> <hid_t> -> IO <herr_t>
 # if H5Oget_info_by_name_vers == 1
-#  cinline H5Oget_info_by_name,  <hid_t> -> CString -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
-#  ccall   H5Oget_info_by_name1, <hid_t> -> CString -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
+h5o_get_info_by_name :: HId_t -> CString -> Out H5O_info_t -> HId_t -> IO HErr_t
+h5o_get_info_by_name = h5o_get_info_by_name1
 # elif H5Oget_info_by_name_vers == 2
-#  cinline H5Oget_info_by_name,  <hid_t> -> CString -> Out <H5O_info_t> -> CUInt -> <hid_t> -> IO <herr_t>
-#  ccall   H5Oget_info_by_name2, <hid_t> -> CString -> Out <H5O_info_t> -> CUInt -> <hid_t> -> IO <herr_t>
+h5o_get_info_by_name :: HId_t -> CString -> Out H5O_info_t -> CUInt -> HId_t -> IO HErr_t
+h5o_get_info_by_name = h5o_get_info_by_name2
 # elif H5Oget_info_by_name_vers == 3
-#  cinline H5Oget_info_by_name,  <hid_t> -> CString -> Out <H5O_info_t>  -> CUInt -> <hid_t> -> IO <herr_t>
 #  ccall   H5Oget_info_by_name3, <hid_t> -> CString -> Out <H5O_info2_t> -> CUInt -> <hid_t> -> IO <herr_t>
+h5o_get_info_by_name :: HId_t -> CString -> Out H5O_info_t -> CUInt -> HId_t -> IO HErr_t
+h5o_get_info_by_name = h5o_get_info_by_name3
 # else
 #  error TODO
 # endif
 #else
 # ccall H5Oget_info_by_name, <hid_t> -> CString -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
+#endif
+
+-- H5Ovisit
+
+-- |Recursively visit an object and all the objects reachable
+-- from it.  If the starting object is a group, all the objects
+-- linked to from that group will be visited.  Links within
+-- each group are visited according to the order within the
+-- specified index (unless the specified index does not exist for
+-- a particular group, then the "name" index is used).
+--
+-- NOTE: Soft links and user-defined links are ignored during
+-- this operation.
+--
+-- NOTE: Each _object_ reachable from the initial group will only
+-- be visited once.  If multiple hard links point to the same
+-- object, the first link to the object's path (according to the
+-- iteration index and iteration order given) will be used to in
+-- the callback about the object.
+--
+-- On success, returns the return value of the first operator that
+-- returns non-zero, or zero if all members were processed with no
+-- operator returning non-zero.
+--
+-- Returns negative if something goes wrong within the library, or
+-- the negative value returned by one of the operators.
+--
+-- > herr_t H5Ovisit(hid_t obj_id, H5_index_t idx_type, H5_iter_order_t order,
+-- >     H5O_iterate_t op, void *op_data);
+
+#if defined(H5Ovisit_vers)
+# ccall H5Ovisit1, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5O_iterate1_t a -> InOut a -> IO <herr_t>
+# ccall H5Ovisit2, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5O_iterate1_t a -> InOut a -> CUInt -> IO <herr_t>
+# if H5Ovisit_vers == 1
+h5o_visit :: HId_t -> H5_index_t -> H5_iter_order_t -> H5O_iterate_t a -> InOut a -> IO HErr_t
+h5o_visit = h5o_visit1
+# elif H5Ovisit_vers == 2
+h5o_visit :: HId_t -> H5_index_t -> H5_iter_order_t -> H5O_iterate_t a -> InOut a -> CUInt -> IO HErr_t
+h5o_visit = h5o_visit2
+# elif H5Ovisit_vers == 3
+# ccall H5Ovisit3, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5O_iterate2_t a -> InOut a -> CUInt -> IO <herr_t>
+h5o_visit :: HId_t -> H5_index_t -> H5_iter_order_t -> H5O_iterate_t a -> InOut a -> CUInt -> IO HErr_t
+h5o_visit = h5o_visit3
+# else
+#  error TODO
+# endif
+#else
+# ccall H5Ovisit, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5O_iterate_t a -> InOut a -> IO <herr_t>
+#endif
+
+
+-- H5Ovisit_by_name
+
+-- |Recursively visit an object and all the objects reachable
+-- from it.  If the starting object is a group, all the objects
+-- linked to from that group will be visited.  Links within
+-- each group are visited according to the order within the
+-- specified index (unless the specified index does not exist for
+-- a particular group, then the "name" index is used).
+--
+-- NOTE: Soft links and user-defined links are ignored during
+-- this operation.
+--
+-- NOTE: Each _object_ reachable from the initial group will only
+-- be visited once.  If multiple hard links point to the same
+-- object, the first link to the object's path (according to the
+-- iteration index and iteration order given) will be used to in
+-- the callback about the object.
+--
+-- On success, returns the return value of the first operator that
+-- returns non-zero, or zero if all members were processed with no
+-- operator returning non-zero.
+--
+-- Returns negative if something goes wrong within the library, or
+-- the negative value returned by one of the operators.
+--
+-- > herr_t H5Ovisit_by_name(hid_t loc_id, const char *obj_name,
+-- >     H5_index_t idx_type, H5_iter_order_t order, H5O_iterate_t op,
+-- >     void *op_data, hid_t lapl_id);
+#if defined(H5Ovisit_by_name_vers)
+# ccall H5Ovisit_by_name1, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> H5O_iterate_t a -> InOut a -> <hid_t> -> IO <herr_t>
+# ccall H5Ovisit_by_name2, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> H5O_iterate_t a -> InOut a -> CUInt -> <hid_t> -> IO <herr_t>
+# if H5Ovisit_by_name_vers == 1
+h5o_visit_by_name :: HId_t -> CString -> H5_index_t -> H5_iter_order_t -> H5O_iterate_t a -> InOut a -> HId_t -> IO HErr_t
+h5o_visit_by_name = h5o_visit_by_name1
+# elif H5Ovisit_by_name_vers == 2
+h5o_visit_by_name :: HId_t -> CString -> H5_index_t -> H5_iter_order_t -> H5O_iterate_t a -> InOut a -> CUInt -> HId_t -> IO HErr_t
+h5o_visit_by_name = h5o_visit_by_name2
+# elif H5Ovisit_by_name_vers == 3
+# ccall H5Ovisit_by_name3, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> H5O_iterate_t a -> InOut a -> CUInt -> <hid_t> -> IO <herr_t>
+h5o_visit_by_name :: HId_t -> CString -> H5_index_t -> H5_iter_order_t -> H5O_iterate_t a -> InOut a -> CUInt -> HId_t -> IO HErr_t
+h5o_visit_by_name = h5o_visit_by_name3
+# else
+#  error TODO
+# endif
+#else
+#ccall H5Ovisit_by_name, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> H5O_iterate_t a -> InOut a -> <hid_t> -> IO <herr_t>
 #endif

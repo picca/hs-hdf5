@@ -16,6 +16,7 @@ import Foreign.Storable
 
 import Bindings.HDF5.Raw.H5
 import Bindings.HDF5.Raw.H5I
+import Bindings.HDF5.Raw.H5O
 import Bindings.HDF5.Raw.H5T
 
 import Foreign.Ptr.Conventions
@@ -369,9 +370,7 @@ type H5L_elink_traverse_t a = FunPtr (CString
 
 #if defined(H5Lget_info_vers)
 
-# if H5Lget_info_vers == 1
-
-#  starttype H5L_info_t
+#  starttype H5L_info1_t
 #  field type,                <H5L_type_t>
 #  field corder_valid,        <hbool_t>
 #  field corder,              Int64
@@ -380,11 +379,7 @@ type H5L_elink_traverse_t a = FunPtr (CString
 #  union_field u.val_size,    <size_t>
 #  stoptype
 
-type H5L_info1_t = H5L_info_t
-
-# else
-
-#  starttype H5L_info_t
+#  starttype H5L_info2_t
 #  field type,                <H5L_type_t>
 #  field corder_valid,        <hbool_t>
 #  field corder,              Int64
@@ -393,7 +388,13 @@ type H5L_info1_t = H5L_info_t
 #  union_field u.val_size,    <size_t>
 #  stoptype
 
-type H5L_info2_t = H5L_info_t
+# if H5Lget_info_vers == 1
+
+#synonym_t H5L_info_t, <H5L_info1_t>
+
+# else
+
+#synonym_t H5L_info_t, <H5L_info2_t>
 
 # endif
 
@@ -413,12 +414,14 @@ type H5L_info2_t = H5L_info_t
 -- H5Lget_info
 
 #if defined(H5Lget_info_vers)
+# ccall H5Lget_info1, <hid_t> -> CString -> Out <H5L_info1_t> -> <hid_t> -> IO <herr_t>
+# ccall H5Lget_info2, <hid_t> -> CString -> Out <H5L_info2_t> -> <hid_t> -> IO <herr_t>
 # if H5Lget_info_vers == 1
-#  cinline H5Lget_info,  <hid_t> -> CString -> Out <H5L_info_t>  -> <hid_t> -> IO <herr_t>
-#  ccall   H5Lget_info1, <hid_t> -> CString -> Out <H5L_info1_t> -> <hid_t> -> IO <herr_t>
+h5l_get_info :: HId_t -> CString -> Out H5L_info_t -> HId_t -> IO HErr_t
+h5l_get_info = h5l_get_info1
 # else
-#  cinline H5Lget_info,  <hid_t> -> CString -> Out <H5L_info_t>  -> <hid_t> -> IO <herr_t>
-#  ccall   H5Lget_info2, <hid_t> -> CString -> Out <H5L_info2_t> -> <hid_t> -> IO <herr_t>
+h5l_get_info :: HId_t -> CString -> Out H5L_info_t -> HId_t -> IO HErr_t
+h5l_get_info = h5l_get_info2
 # endif
 #else
 # ccall H5Lget_info, <hid_t> -> CString -> Out <H5L_info_t> -> <hid_t> -> IO <herr_t>
@@ -427,12 +430,14 @@ type H5L_info2_t = H5L_info_t
 -- H5Lget_info_by_idx
 
 #if defined(H5Lget_info_by_idx_vers)
+# ccall H5Lget_info_by_idx1, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5L_info1_t> -> <hid_t> -> IO <herr_t
+# ccall H5Lget_info_by_idx2, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5L_info2_t> -> <hid_t> -> IO <herr_t
 # if H5Lget_info_by_idx_vers == 1
-#  cinline H5Lget_info_by_idx,  <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5L_info_t>  -> <hid_t> -> IO <herr_t
-#  ccall   H5Lget_info_by_idx1, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5L_info1_t> -> <hid_t> -> IO <herr_t
+h5l_get_info_by_idx :: HId_t -> CString -> H5_index_t -> H5_iter_order_t -> HSize_t -> Out H5L_info_t -> HId_t -> IO HErr_t
+h5l_get_info_by_idx = h5l_get_info_by_idx1
 # else
-#  cinline H5Lget_info_by_idx,  <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5L_info_t>  -> <hid_t> -> IO <herr_t
-#  ccall   H5Lget_info_by_idx2, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5L_info2_t> -> <hid_t> -> IO <herr_t
+h5l_get_info_by_idx :: HId_t -> CString -> H5_index_t -> H5_iter_order_t -> HSize_t -> Out H5L_info_t -> HId_t -> IO HErr_t
+h5l_get_info_by_idx = h5l_get_info_by_idx2
 # endif
 #else
 # ccall H5Lget_info_by_idx, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5L_info_t> -> <hid_t> -> IO <herr_t
@@ -441,28 +446,56 @@ type H5L_info2_t = H5L_info_t
 -- H5L_iterate_t
 
 #if defined(H5Literate_vers)
-# if H5Literate_vers == 1
-type H5L_iterate_t  a = FunPtr (HId_t -> CString -> In H5L_info_t  -> InOut a -> IO HErr_t)
+
 type H5L_iterate1_t a = FunPtr (HId_t -> CString -> In H5L_info1_t -> InOut a -> IO HErr_t)
-# elif H5Literate_vers == 2
-type H5L_iterate_t  a = FunPtr (HId_t -> CString -> In H5L_info_t  -> InOut a -> IO HErr_t)
+
+foreign import ccall "wrapper" mk'H5L_iterate1_t
+    :: (HId_t -> CString -> In H5L_info1_t -> InOut a -> IO HErr_t)
+    -> IO (FunPtr (HId_t -> CString -> In H5L_info1_t -> InOut a -> IO HErr_t))
+
 type H5L_iterate2_t a = FunPtr (HId_t -> CString -> In H5L_info2_t -> InOut a -> IO HErr_t)
+
+foreign import ccall "wrapper" mk'H5L_iterate2_t
+    :: (HId_t -> CString -> In H5L_info2_t -> InOut a -> IO HErr_t)
+    -> IO (FunPtr (HId_t -> CString -> In H5L_info2_t -> InOut a -> IO HErr_t))
+# if H5Literate_vers == 1
+
+type H5L_iterate_t  a = FunPtr (HId_t -> CString -> In H5L_info_t  -> InOut a -> IO HErr_t)
+foreign import ccall "wrapper" mk'H5L_iterate_t
+    :: (HId_t -> CString -> In H5L_info_t -> InOut a -> IO HErr_t)
+    -> IO (FunPtr (HId_t -> CString -> In H5L_info_t -> InOut a -> IO HErr_t))
+
+# elif H5Literate_vers == 2
+
+type H5L_iterate_t  a = FunPtr (HId_t -> CString -> In H5L_info_t  -> InOut a -> IO HErr_t)
+foreign import ccall "wrapper" mk'H5L_iterate_t
+    :: (HId_t -> CString -> In H5L_info_t -> InOut a -> IO HErr_t)
+    -> IO (FunPtr (HId_t -> CString -> In H5L_info_t -> InOut a -> IO HErr_t))
+
 # else
 #  error TODO
 # endif
 #else
+
 type H5L_iterate_t  a = FunPtr (HId_t -> CString -> In H5L_info_t  -> InOut a -> IO HErr_t)
+
+foreign import ccall "wrapper" mk'H5L_iterate_t
+    :: (HId_t -> CString -> In H5L_info_t -> InOut a -> IO HErr_t)
+    -> IO (FunPtr (HId_t -> CString -> In H5L_info_t -> InOut a -> IO HErr_t))
+
 #endif
 
 -- H5Literate
 
 #if defined(H5Literate_vers)
+# ccall H5Literate1, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate1_t a -> InOut a -> IO <herr_t>
+# ccall H5Literate2, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate2_t a -> InOut a -> IO <herr_t>
 # if H5Literate_vers == 1
-#  cinline H5Literate,  <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate_t  a -> InOut a -> IO <herr_t>
-#  ccall   H5Literate1, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate1_t a -> InOut a -> IO <herr_t>
+h5l_iterate :: HId_t -> H5_index_t -> H5_iter_order_t -> InOut HSize_t -> H5L_iterate_t  a -> InOut a -> IO HErr_t
+h5l_iterate = h5l_iterate1
 # elif H5Literate_vers == 2
-#  cinline H5Literate,  <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate_t  a -> InOut a -> IO <herr_t>
-#  ccall   H5Literate2, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate2_t a -> InOut a -> IO <herr_t>
+h5l_iterate :: HId_t -> H5_index_t -> H5_iter_order_t -> InOut HSize_t -> H5L_iterate_t  a -> InOut a -> IO HErr_t
+h5l_iterate = h5l_iterate2
 # else
 #  error TODO
 # endif
@@ -474,12 +507,14 @@ type H5L_iterate_t  a = FunPtr (HId_t -> CString -> In H5L_info_t  -> InOut a ->
 -- H5Literate_by_name
 
 #if defined(H5Literate_by_name_vers)
+# ccall H5Literate_by_name1, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate1_t a -> InOut a -> <hid_t> -> IO <herr_t>
+# ccall H5Literate_by_name2, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate2_t a -> InOut a -> <hid_t> -> IO <herr_t>
 # if H5Literate_by_name_vers == 1
-#  cinline H5Literate_by_name,  <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate_t  a -> InOut a -> <hid_t> -> IO <herr_t>
-#  ccall   H5Literate_by_name1, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate1_t a -> InOut a -> <hid_t> -> IO <herr_t>
+h5l_iterate_by_name :: HId_t -> CString -> H5_index_t -> H5_iter_order_t -> InOut HSize_t -> H5L_iterate_t  a -> InOut a -> HId_t -> IO HErr_t
+h5l_iterate_by_name = h5l_iterate_by_name1
 # elif H5Literate_by_name_vers == 2
-#  cinline H5Literate_by_name,  <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate_t  a -> InOut a -> <hid_t> -> IO <herr_t>
-#  ccall   H5Literate_by_name2, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate2_t a -> InOut a -> <hid_t> -> IO <herr_t>
+h5l_iterate_by_name :: HId_t -> CString -> H5_index_t -> H5_iter_order_t -> InOut HSize_t -> H5L_iterate_t  a -> InOut a -> HId_t -> IO HErr_t
+h5l_iterate_by_name = h5l_iterate_by_name2
 # else
 #  error TODO
 # endif
@@ -491,12 +526,14 @@ type H5L_iterate_t  a = FunPtr (HId_t -> CString -> In H5L_info_t  -> InOut a ->
 -- H5Lvisit
 
 #if defined(H5Lvisit_vers)
+# ccall H5Lvisit1, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate1_t a -> InOut a -> IO <herr_t>
+# ccall H5Lvisit2, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate2_t a -> InOut a -> IO <herr_t>
 # if H5Lvisit_vers == 1
-# cinline H5Lvisit,  <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate_t  a -> InOut a -> IO <herr_t>
-# ccall   H5Lvisit1, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate1_t a -> InOut a -> IO <herr_t>
+h5l_visit :: HId_t -> H5_index_t -> H5_iter_order_t -> H5L_iterate_t a -> InOut a -> IO HErr_t
+h5l_visit = h5l_visit1
 # elif H5Lvisit_vers == 2
-#  cinline H5Lvisit,  <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate_t  a -> InOut a -> IO <herr_t>
-#  ccall   H5Lvisit2, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate2_t a -> InOut a -> IO <herr_t>
+h5l_visit :: HId_t -> H5_index_t -> H5_iter_order_t -> H5L_iterate_t a -> InOut a -> IO HErr_t
+h5l_visit = h5l_visit2
 # else
 #  error TODO
 # endif
@@ -508,12 +545,14 @@ type H5L_iterate_t  a = FunPtr (HId_t -> CString -> In H5L_info_t  -> InOut a ->
 -- H5Lvisit_by_name
 
 #if defined(H5Lvisit_by_name_vers)
+# ccall H5Lvisit_by_name1, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate1_t a -> InOut a -> <hid_t> -> IO <herr_t>
+# ccall H5Lvisit_by_name2, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate2_t a -> InOut a -> <hid_t> -> IO <herr_t>
 # if H5Lvisit_by_name_vers == 1
-#  cinline H5Lvisit_by_name,  <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate_t  a -> InOut a -> <hid_t> -> IO <herr_t>
-#  ccall   H5Lvisit_by_name1, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate1_t a -> InOut a -> <hid_t> -> IO <herr_t>
+h5l_visit_by_name :: HId_t -> CString -> H5_index_t -> H5_iter_order_t -> H5L_iterate_t a -> InOut a -> HId_t -> IO HErr_t
+h5l_visit_by_name = h5l_visit_by_name1
 # elif H5Lvisit_by_name_vers == 2
-#  cinline H5Lvisit_by_name,  <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate_t  a -> InOut a -> <hid_t> -> IO <herr_t>
-#  ccall   H5Lvisit_by_name2, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate2_t a -> InOut a -> <hid_t> -> IO <herr_t>
+h5l_visit_by_name :: HId_t -> CString -> H5_index_t -> H5_iter_order_t -> H5L_iterate_t a -> InOut a -> HId_t -> IO HErr_t
+h5l_visit_by_name = h5l_visit_by_name2
 # else
 #  error TODO
 # endif

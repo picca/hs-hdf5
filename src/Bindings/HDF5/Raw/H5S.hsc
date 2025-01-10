@@ -162,17 +162,6 @@ import Foreign.Ptr.Conventions
 -- > herr_t H5Sclose(hid_t space_id);
 #ccall H5Sclose, <hid_t> -> IO <herr_t>
 
--- |Given a dataspace ID, converts the object description
--- (including selection) into binary in a buffer.
---
--- 'nalloc' is the size of the buffer on input, the size of the encoded
--- data on output.  If the buffer is not big enough, no data is written
--- to it (but nalloc is still updated with the size needed).
---
--- Returns non-negative on success, negative on failure.
---
-#cinline H5Sencode,  <hid_t> -> OutArray CChar -> InOut <size_t> -> IO <herr_t>
-
 -- |Decode a binary object description of dataspace and
 -- return a new object handle.
 --
@@ -530,3 +519,34 @@ import Foreign.Ptr.Conventions
 
 -- H5S_sel_type H5Sget_select_type(hid_t spaceid);
 #ccall H5Sget_select_type, <hid_t> -> IO <H5S_sel_type>
+
+--------------------------
+-- Compatibility Macros --
+--------------------------
+
+
+-- |Given a dataspace ID, converts the object description
+-- (including selection) into binary in a buffer.
+--
+-- 'nalloc' is the size of the buffer on input, the size of the encoded
+-- data on output.  If the buffer is not big enough, no data is written
+-- to it (but nalloc is still updated with the size needed).
+--
+-- Returns non-negative on success, negative on failure.
+--
+
+#if defined(H5Sencode_vers)
+# ccall H5Sencode1,  <hid_t> -> OutArray CChar -> InOut <size_t> -> IO <herr_t>
+# ccall H5Sencode2,  <hid_t> -> OutArray CChar -> InOut <size_t> -> <hid_t> -> IO <herr_t>
+# if H5Sencode_vers == 1
+h5s_encode :: HId_t -> OutArray CChar -> InOut CSize -> IO HErr_t
+h5s_encode = h5s_encode1
+# elif H5Sencode_vers == 2
+h5s_encode :: HId_t -> OutArray CChar -> InOut CSize -> HId_t -> IO HErr_t
+h5s_encode = h5s_encode2
+# else
+#  error TODO
+# endif
+#else
+# ccall H5Sencode, <hid_t> -> OutArray CChar -> InOut <size_t> -> IO <herr_t>
+#endif

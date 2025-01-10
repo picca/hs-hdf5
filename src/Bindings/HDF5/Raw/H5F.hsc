@@ -543,8 +543,6 @@ import Foreign.Ptr.Conventions
 type H5F_flush_cb_t a = FunPtr (HId_t -> InOut a -> IO HErr_t)
 
 #ccall H5Fformat_convert, <hid_t> -> IO <herr_t>
-#ccall H5Fget_info1, <hid_t> -> Out H5F_info1_t -> IO <herr_t>
-#ccall H5Fget_info2, <hid_t> -> Out H5F_info2_t -> IO <herr_t>
 #ccall H5Fget_mdc_logging_status, <hid_t> -> Out hbool_t -> Out hbool_t -> IO <herr_t>
 #ccall H5Fget_metadata_read_retry_info, <hid_t> -> Out H5F_retry_info_t -> IO <herr_t>
 #ccall H5Fget_free_sections, <hid_t> -> <H5F_mem_t> -> <size_t> -> Out H5F_sect_info_t -> IO <ssize_t>
@@ -557,10 +555,31 @@ type H5F_flush_cb_t a = FunPtr (HId_t -> InOut a -> IO HErr_t)
 -- Compatibility macros --
 --------------------------
 
-#if H5F_info_t_vers == 1
-type H5F_info_t = H5F_info1_t
+
+-- H5F_info_t
+
+#if H5Fget_info_vers == 1
+#synonym_t H5F_info_t, <H5F_info1_t>
+#elif H5Fget_info_vers == 2
+#synonym_t H5F_info_t, <H5F_info2_t>
 #else
-type H5F_info_t = H5F_info2_t
+# error TODO
 #endif
 
-#cinline H5Fget_info, <hid_t> -> Out H5F_info_t -> IO <herr_t>
+-- H5Fget_info
+
+#if defined(H5Fget_info_vers)
+# ccall H5Fget_info1, <hid_t> -> Out H5F_info1_t -> IO <herr_t>
+# ccall H5Fget_info2, <hid_t> -> Out H5F_info2_t -> IO <herr_t>
+# if H5Fget_info_vers == 1
+h5f_get_info :: HId_t -> Out H5F_info1_t -> IO HErr_t
+h5f_get_info = h5f_get_info1
+# elif H5Fget_info_vers == 2
+h5f_get_info :: HId_t -> Out H5F_info2_t -> IO HErr_t
+h5f_get_info = h5f_get_info2
+# else
+#  error TODO
+# endif
+#else
+# ccall H5Fget_info, <hid_t> -> Out H5F_info_t -> IO <herr_t>
+#endif
