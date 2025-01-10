@@ -549,4 +549,6 @@ h5s_encode = h5s_encode2
 # endif
 #else
 # ccall H5Sencode, <hid_t> -> OutArray CChar -> InOut <size_t> -> IO <herr_t>
+h5s_encode1 :: HId_t -> OutArray CChar -> InOut CSize -> IO HErr_t
+h5s_encode1 = h5s_encode
 #endif
