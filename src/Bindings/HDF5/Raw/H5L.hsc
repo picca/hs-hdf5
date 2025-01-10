@@ -425,6 +425,8 @@ h5l_get_info = h5l_get_info2
 # endif
 #else
 # ccall H5Lget_info, <hid_t> -> CString -> Out <H5L_info_t> -> <hid_t> -> IO <herr_t>
+h5l_get_info1 :: HId_t -> CString -> Out H5L_info_t -> HId_t -> IO HErr_t
+h5l_get_info1 = h5l_get_info
 #endif
 
 -- H5Lget_info_by_idx
@@ -441,6 +443,8 @@ h5l_get_info_by_idx = h5l_get_info_by_idx2
 # endif
 #else
 # ccall H5Lget_info_by_idx, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5L_info_t> -> <hid_t> -> IO <herr_t
+h5l_get_info_by_idx1 :: HId_t -> CString -> H5_index_t -> H5_iter_order_t -> HSize_t -> Out H5L_info_t -> HId_t -> IO HErr_t
+h5l_get_info_by_idx1 = h5l_get_info_by_idx
 #endif
 
 -- H5L_iterate_t
@@ -501,6 +505,8 @@ h5l_iterate = h5l_iterate2
 # endif
 #else
 # ccall H5Literate, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate_t a -> InOut a -> IO <herr_t>
+h5l_iterate1 :: HId_t -> H5_index_t -> H5_iter_order_t -> InOut HSize_t -> H5L_iterate_t  a -> InOut a -> IO HErr_t
+h5l_iterate1 = h5l_iterate
 #endif
 
 
@@ -520,6 +526,8 @@ h5l_iterate_by_name = h5l_iterate_by_name2
 # endif
 #else
 # ccall H5Literate_by_name, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> InOut <hsize_t> -> H5L_iterate_t a -> InOut a -> <hid_t> -> IO <herr_t>
+h5l_iterate_by_name1 :: HId_t -> CString -> H5_index_t -> H5_iter_order_t -> InOut HSize_t -> H5L_iterate_t  a -> InOut a -> HId_t -> IO HErr_t
+h5l_iterate_by_name1 = h5l_iterate_by_name
 #endif
 
 
@@ -539,6 +547,8 @@ h5l_visit = h5l_visit2
 # endif
 #else
 # ccall H5Lvisit, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate_t a -> InOut a -> IO <herr_t>
+h5l_visit1 :: HId_t -> H5_index_t -> H5_iter_order_t -> H5L_iterate_t a -> InOut a -> IO HErr_t
+h5l_visit1 = h5l_visit
 #endif
 
 
@@ -558,4 +568,6 @@ h5l_visit_by_name = h5l_visit_by_name2
 # endif
 #else
 # ccall H5Lvisit_by_name, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> H5L_iterate_t a -> InOut a -> <hid_t> -> IO <herr_t>
+h5l_visit_by_name1 :: HId_t -> CString -> H5_index_t -> H5_iter_order_t -> H5L_iterate_t a -> InOut a -> HId_t -> IO HErr_t
+h5l_visit_by_name1 = h5l_visit_by_name
 #endif

@@ -582,4 +582,6 @@ h5f_get_info = h5f_get_info2
 # endif
 #else
 # ccall H5Fget_info, <hid_t> -> Out H5F_info_t -> IO <herr_t>
+h5f_get_info1 :: HId_t -> Out H5F_info_t -> IO HErr_t
+h5f_get_info1 = h5f_get_info
 #endif

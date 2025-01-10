@@ -507,6 +507,7 @@ type H5O_iterate_t  a = FunPtr (HId_t -> CString -> In H5O_info_t  -> InOut a ->
 # endif
 #else
 type H5O_iterate_t a = FunPtr (HId_t -> CString -> In H5O_info_t -> InOut a -> IO HErr_t)
+type H5O_iterate1_t a = H5O_iterate_t a
 #endif
 
 -- H5Oget_info
@@ -529,6 +530,8 @@ h5o_get_info = h5o_get_info3
 # endif
 #else
 # ccall H5Oget_info, <hid_t> -> Out <H5O_info_t> -> IO <herr_t>
+h5o_get_info1 :: HId_t -> Out H5O_info_t -> IO HErr_t
+h5o_get_info1 = h5o_get_info
 #endif
 
 
@@ -552,6 +555,8 @@ h5o_get_info_by_idx = h5o_get_info_by_idx3
 # endif
 #else
 # ccall H5Oget_info_by_idx, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> <hsize_t> -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
+h5o_get_info_by_idx1 :: HId_t -> CString -> H5_index_t -> H5_iter_order_t -> HSize_t -> Out H5O_info_t -> HId_t -> IO HErr_t
+h5o_get_info_by_idx1 = h5o_get_info_by_idx
 #endif
 
 -- H5Oget_info_by_name
@@ -574,6 +579,8 @@ h5o_get_info_by_name = h5o_get_info_by_name3
 # endif
 #else
 # ccall H5Oget_info_by_name, <hid_t> -> CString -> Out <H5O_info_t> -> <hid_t> -> IO <herr_t>
+h5o_get_info_by_name1 :: HId_t -> CString -> Out H5O_info_t -> HId_t -> IO HErr_t
+h5o_get_info_by_name1 = h5o_get_info_by_name
 #endif
 
 -- H5Ovisit
@@ -622,6 +629,8 @@ h5o_visit = h5o_visit3
 # endif
 #else
 # ccall H5Ovisit, <hid_t> -> <H5_index_t> -> <H5_iter_order_t> -> H5O_iterate_t a -> InOut a -> IO <herr_t>
+h5o_visit1 :: HId_t -> H5_index_t -> H5_iter_order_t -> H5O_iterate_t a -> InOut a -> IO HErr_t
+h5o_visit1 = h5o_visit
 #endif
 
 
@@ -671,4 +680,6 @@ h5o_visit_by_name = h5o_visit_by_name3
 # endif
 #else
 #ccall H5Ovisit_by_name, <hid_t> -> CString -> <H5_index_t> -> <H5_iter_order_t> -> H5O_iterate_t a -> InOut a -> <hid_t> -> IO <herr_t>
+h5o_visit_by_name1 :: HId_t -> CString -> H5_index_t -> H5_iter_order_t -> H5O_iterate_t a -> InOut a -> HId_t -> IO HErr_t
+h5o_visit_by_name1 = h5o_visit_by_name
 #endif
