@@ -1,8 +1,12 @@
-1.10.0 [2025-01-XX]
+1.8.15 [2025-09-04]
 ------
 
-* build with H5_USE_110_API
-* should compilation with hdf5 from 1.10.0 to 1.14.5
+* fix bytestring upper bound to make is compatible with the latest nix stable version.
+
+1.8.14 [2025-01-15]
+
+    build with H5_USE_18_API
+    fix compilation with hdf5 from 1.10.0 to 1.14.5
 
 1.8.13 [2024-09-18]
 ------
