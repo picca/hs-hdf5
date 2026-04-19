@@ -513,8 +513,8 @@ type H5O_iterate1_t a = H5O_iterate_t a
 -- H5Oget_info
 
 #if defined(H5Oget_info_vers)
-# ccall H5Oget_info1, <hid_t> -> Out <H5O_info1_t> -> IO <herr_t>
-# ccall H5Oget_info2, <hid_t> -> Out <H5O_info1_t> -> CUInt -> IO <herr_t>
+# ccall H5Oget_info1, <hid_t> -> Out <H5O_info_t> -> IO <herr_t>
+# ccall H5Oget_info2, <hid_t> -> Out <H5O_info_t> -> CUInt -> IO <herr_t>
 # if H5Oget_info_vers == 1
 h5o_get_info :: HId_t -> Out H5O_info_t -> IO HErr_t
 h5o_get_info = h5o_get_info1
