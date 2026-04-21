@@ -1,3 +1,8 @@
+1.8.16 [2026-04-21]
+------
+
+* fix compilation with H5_HAVE_DIRECT enabled
+
 1.8.15 [2025-09-04]
 ------
 
