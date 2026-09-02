@@ -1,4 +1,4 @@
-1.8.16 [2026-05-21]
+1.8.16 [2026-09-02]
 ------
 
 [Philipp Middendorf]
@@ -6,6 +6,9 @@
 
 [Joshua Chia]
 * Fix HDF5 < 1.12 compatibility in H5Oget_info bindings
+
+[Picca Frédéric-Emmanuel]
+* fix compilation with hdf5 2.X thanks to Gilles Filippini
 
 1.8.15 [2025-09-04]
 ------

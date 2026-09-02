@@ -694,7 +694,22 @@ h5t_MIPS_F64 = h5t_IEEE_F64BE
 -- or negative on failure.
 --
 -- > hid_t H5Tdecode(const void *buf);
-#ccall H5Tdecode, InArray a -> IO <hid_t>
+
+#if defined(H5Tdecode_vers)
+# ccall H5Tdecode1, InArray a -> IO <hid_t>
+# ccall H5Tdecode2, InArray a -> <size_t> -> IO <hid_t>
+# if H5Tdecode_vers == 1
+h5t_decode :: InArray a -> IO HId_t
+h5t_decode = h5t_decode1
+# elif H5Tdecode_vers == 2
+h5t_decode :: InArray a -> CSize -> IO HId_t
+h5t_decode = h5t_decode2
+# else
+#  error TODO
+# endif
+#else
+# ccall H5Tdecode, InArray a -> IO <hid_t>
+#endif
 
 -- > herr_t H5Tflush(hid_t type_id);
 #ccall H5Tflush, <hid_t> -> IO <herr_t>

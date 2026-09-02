@@ -15,15 +15,17 @@ import System.IO.Unsafe (unsafePerformIO)
 import Bindings.HDF5.Raw.H5
 import Bindings.HDF5.Raw.H5I
 
-#mangle_ident "H5FD_SEC2"
+#if defined(H5FD_sec2_init)
+# mangle_ident "H5FD_SEC2"
   :: HId_t
-#mangle_ident "H5FD_SEC2"
+# mangle_ident "H5FD_SEC2"
     = unsafePerformIO (#mangle_ident "H5FD_sec2_init")
 
 -- |Initialize this driver by registering the driver with the library.
 --
 -- > hid_t H5FD_sec2_init(void);
-#ccall H5FD_sec2_init, IO <hid_t>
+# ccall H5FD_sec2_init, IO <hid_t>
+#endif
 
 #if H5_VERSION_LE(1,8,18)
 -- |Shut down the VFD.

@@ -9,15 +9,17 @@ import System.IO.Unsafe (unsafePerformIO)
 import Bindings.HDF5.Raw.H5
 import Bindings.HDF5.Raw.H5I
 
-#mangle_ident "H5FD_STDIO"
+#if defined(H5FD_stdio_init)
+# mangle_ident "H5FD_STDIO"
   :: HId_t
-#mangle_ident "H5FD_STDIO"
+# mangle_ident "H5FD_STDIO"
     = unsafePerformIO (#mangle_ident "H5FD_stdio_init")
 
 -- |Initialize this driver by registering the driver with the library.
 --
 -- > hid_t H5FD_stdio_init(void);
-#ccall H5FD_stdio_init, IO <hid_t>
+# ccall H5FD_stdio_init, IO <hid_t>
+#endif
 
 #if H5_VERSION_LE(1,8,18)
 

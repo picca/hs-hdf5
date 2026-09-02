@@ -15,15 +15,17 @@ import Bindings.HDF5.Raw.H5I
 
 import Foreign.Ptr.Conventions
 
-#mangle_ident "H5FD_CORE"
+#if defined(H5FD_core_init)
+# mangle_ident "H5FD_CORE"
   :: HId_t
-#mangle_ident "H5FD_CORE"
+# mangle_ident "H5FD_CORE"
     = unsafePerformIO (#mangle_ident "H5FD_core_init")
 
 -- |Initialize this driver by registering the driver with the library.
 --
 -- > hid_t H5FD_core_init(void);x
-#ccall H5FD_core_init, IO <hid_t>
+# ccall H5FD_core_init, IO <hid_t>
+#endif
 
 #if H5_VERSION_LE(1,8,18)
 -- |Shut down the VFD.

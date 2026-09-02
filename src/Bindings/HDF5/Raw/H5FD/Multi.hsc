@@ -16,9 +16,10 @@ import Bindings.HDF5.Raw.H5I
 import Bindings.HDF5.Raw.H5FD
 import Foreign.Ptr.Conventions
 
-#mangle_ident "H5FD_MULTI"
+#if defined(H5FD_multi_init)
+# mangle_ident "H5FD_MULTI"
   :: HId_t
-#mangle_ident "H5FD_MULTI"
+# mangle_ident "H5FD_MULTI"
     = unsafePerformIO (#mangle_ident "H5FD_multi_init")
 
 -- |Initialize this driver by registering the driver with the library.
@@ -27,7 +28,8 @@ import Foreign.Ptr.Conventions
 -- returns a negative value.
 --
 -- > hid_t H5FD_multi_init(void);
-#ccall H5FD_multi_init, IO <hid_t>
+# ccall H5FD_multi_init, IO <hid_t>
+#endif
 
 #if H5_VERSION_LE(1,8,18)
 -- Shut down the VFD
